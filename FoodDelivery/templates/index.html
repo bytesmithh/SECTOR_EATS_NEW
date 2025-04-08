@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block style %}
+<style>
+.hungry-section {
+    padding: 80px 0;
+    background-color: #fff;
+    text-align: center;
+    position: relative;
+}
+
+.hungry-heading {
+    font-size: 5rem;
+    font-weight: bold;
+    letter-spacing: 10px;
+    position: relative;
+    display: inline-block;
+}
+
+.food-item {
+    margin-top: 40px;
+}
+
+.food-item img {
+    width: auto;
+    height: 80px; /* Set a fixed height */
+    object-fit: contain; /* Ensures images maintain aspect ratio */
+    
+
+}
+
+
+.order-btn {
+    border: 2px solid black;
+    padding: 8px 16px;
+    text-transform: uppercase;
+    font-weight: bold;
+    background: transparent;
+    transition: 0.3s;
+}
+
+.order-btn:hover {
+    background: black;
+    color: white;
+}
+.food-item>h5{
+    margin-top: 2vh;
+    font-family: 'Oswald',sans-serif;
+
+}
+
+.container {
+    padding: 50px;
+}
+.container>h1 {
+    font-size: 50px;
+    font-weight: bold;
+    margin-bottom: 100px;
+    justify-content: center;
+    letter-spacing: 20px; /* Adds space between letters in DELIVERY */
+    display: flex;
+    align-items: center;
+
+}
+
+.bike-icon {
+    font-size: 100px; /* Makes the bike icon large */
+    margin-right: 20px; /* Adds space between bike and text */
+}
+
+.icons {
+    display: flex;
+    justify-content: center;
+    gap: 100px; /* Increases space between icons */
+    margin-top: 30px;
+}
+
+.icon {
+    text-align: center;
+    font-size: 18px;
+    font-family: 'Oswald',sans-serif;
+}
+
+.icon img {
+    width: 80px;
+    height: 80px;
+}
+
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+{% endblock %}
+
+{% block main %}
+<img src="{% static 'images/hero.jpeg' %}" alt="Promotional Image" style="width: 100vw; height: 100vh; display: block;">
+
+<section class="hungry-section">
+    <h1 class="hungry-heading" style="font-family: 'Oswald',sans-serif;">RESTAURANTS</h1>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-2 text-center food-item">
+                <img src="{% static 'images/restaurants/kfc.png' %}" alt="KFC">
+                <h5>KFC</h5>
+                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+            </div>
+    
+            <div class="col-md-2 text-center food-item">
+                <img src="{% static 'images/restaurants/dominos.png' %}" alt="Domino's">
+                <h5>Domino's</h5>
+                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+            </div>
+    
+            <div class="col-md-2 text-center food-item">
+                <img src="{% static 'images/restaurants/mcdonalds.png' %}" alt="McDonald's">
+                <h5>McDonald's</h5>
+                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+            </div>
+    
+            <div class="col-md-2 text-center food-item">
+                <img src="{% static 'images/restaurants/subway.png' %}" alt="Subway">
+                <h5>Subway</h5>
+                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+            </div>
+    
+            <div class="col-md-2 text-center food-item">
+                <img src="{% static 'images/restaurants/starbucks.jpeg' %}" alt="Starbucks">
+                <h5>Starbucks</h5>
+                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+            </div>
+    
+            <div class="col-md-2 text-center food-item">
+                <img src="{% static 'images/restaurants/burgerking.jpg' %}" alt="Burger King">
+                <h5>Burger King</h5>
+                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+            </div>
+        </div>
+    </div>
+    
+</section>
+
+<div class="container">
+    <h1 style="font-family: 'Oswald',sans-serif;">
+        <i class="fas fa-motorcycle bike-icon"></i> DELIVERY
+    </h1>
+
+    <div class="icons">
+        <div class="icon">
+            <i class="fas fa-shipping-fast fa-3x"></i>
+            <p>Fast Delivery</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-seedling fa-3x"></i>
+            <p>Fresh Food</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-box fa-3x"></i>
+            <p>Secure Packaging</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-map-marker-alt fa-3x"></i>
+            <p>Live Tracking</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-clock fa-3x"></i>
+            <p>24/7 Service</p>
+        </div>
+    </div>
+
+    
+</div>
+
+    
+
+
+{% endblock %}

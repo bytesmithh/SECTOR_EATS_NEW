@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    About Us
+{% endblock %}
+
+{% block style %}
+<style>
+  .about-container {
+    max-width: 1000px;
+    margin: 5vh auto;
+    padding: 40px;
+    border-radius: 10px;
+    background-image: url('/static/images/food-bg.png'); 
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    z-index: 1;
+    margin-top:12vh;
+    overflow: hidden;
+  }
+
+  .about-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); 
+    z-index: -1;
+  }
+
+  .about-heading,
+  .about-text,
+  .team-section h3,
+  .team-list li {
+    color: white;
+  }
+
+  .about-heading {
+    font-family: 'Oswald',sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 5px;
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+  }
+
+  .about-heading::after {
+    content: '';
+    width: 100px;
+    height: 3px;
+    background: white;
+    display: block;
+    margin: 10px auto 0;
+  }
+
+  .about-text {
+    font-size: 1.1rem;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    line-height: 1.8;
+  }
+
+  .team-section {
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .team-section h3 {
+    font-family: 'Oswald',sans-serif;
+
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    letter-spacing: 6px;
+  }
+
+  .team-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .team-list li {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="about-container">
+  <h2 class="about-heading">ABOUT US</h2>
+
+  <p class="about-text">
+    Welcome to <strong>Sector Eats</strong> – your trusted platform for convenient and quick food delivery.
+    <br>Founded with a passion for great food and technology, our mission is simple: to connect you with your favorite meals in the most efficient and enjoyable way possible.
+    <br><br>Whether you're craving local flavors or exploring something new, Sector Eats is here to serve – fresh, fast, and reliably.
+  </p>
+
+  <div class="team-section">
+    <h3>THE FOUNDERS</h3>
+    <ul class="team-list">
+      <li><strong>Amritpal Singh</strong> – Tech lead & architect behind the full-stack magic of Sector Eats.</li>
+      <li><strong>Arsh Grover</strong>  – Handles backend logic and operational stability like a pro.</li>
+      <li><strong>Adarsh Arya</strong> – The visionary behind the bold UI and seamless customer journey.</li>
+      <li><strong>Arshiya Khullar</strong> – Brand strategist shaping the vibe and digital presence.</li>
+    </ul> 
+  </div>
+  
+</div>
+{% endblock %}
