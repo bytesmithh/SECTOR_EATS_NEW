@@ -6,9 +6,8 @@ import re
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login,authenticate
 from django.contrib.auth.hashers import make_password
-
 from .models import Profile  
 
 
@@ -26,6 +25,7 @@ def signup_view(request):
         phone = request.POST.get('phone')
         address = request.POST.get('address')
         city = request.POST.get('city')
+        role=request.POST.get('role')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
@@ -56,7 +56,8 @@ def signup_view(request):
             user=user,
             phone=phone,
             address=address,
-            city=city
+            city=city,
+            role=role
         )
 
         messages.success(request, "Account created successfully. Please log in.")
@@ -66,9 +67,43 @@ def signup_view(request):
 
 
 
-def login_view(request):
 
-    return render(request,"login.html")
+
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        print("Login attempt with:", email, password)
+
+        try:
+            user_obj = User.objects.get(email=email)
+            print("User found:", user_obj.username)
+        except User.DoesNotExist:
+            print("User not found")
+            messages.error(request, "Invalid email or password.")
+            return redirect('login_view')
+
+        user = authenticate(request, username=user_obj.username, password=password)
+        print("Authenticated user:", user)
+
+        if user is not None:
+            login(request, user)
+            profile = Profile.objects.get(user=user)
+
+            messages.success(request, f"Welcome, {user.username}!")
+
+            if profile.role == 'restaurant_admin':
+                return redirect('home_view')
+            else:
+                return redirect('user_dashboard_view')
+        else:
+            messages.error(request, "Invalid email or password.")
+            return redirect('login_view')
+
+    return render(request, 'login.html')
+
+
 
 def about_us_view(request):
     return render(request,"about_us.html")
@@ -128,5 +163,10 @@ def ai_chat(request):
     
 def chatbot_page(request):
     return render(request, "chatbot.html")
+
+def user_dashboard_view(request):
+    return render(request,"user_dashboard.html")
+
+
 
 

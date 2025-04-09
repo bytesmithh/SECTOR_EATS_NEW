@@ -94,7 +94,7 @@
 
 {% block main %}
 
-<div class="signup-container" style="margin-top: 15vh !important;border:2px solid gray;margin-bottom:10vh">
+<div class="signup-container" style="margin-top: 18vh !important;border:2px solid gray;margin-bottom:10vh">
     <h2 class="text-center" style="font-family: 'Oswald', sans-serif; letter-spacing: 20px; margin-bottom: 3vh;">
         <i class="fas fa-user-plus" style="margin-right: 10px;"></i>SIGNUP
       </h2>
@@ -130,6 +130,16 @@
             <label for="city" class="form-label">City</label>
             <input type="text" class="form-control" id="city" required name="city">
         </div>
+
+        <div class="mb-3">
+          <label for="role" class="form-label">Role</label>
+          <select class="form-control" id="role" name="role" required>
+              <option value="" disabled selected>Select your role</option>
+              <option value="customer">Customer</option>
+              <option value="restaurant_admin">Restaurant Admin</option>
+          </select>
+      </div>
+      
           
         
         <div class="mb-3">

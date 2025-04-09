@@ -8,6 +8,8 @@ urlpatterns=[
     path('about_us/',views.about_us_view,name="about_us_view"),
     path('ai-chat/', views.ai_chat, name='ai_chat'),
     path("chatbot/", views.chatbot_page, name="chatbot_page"),
+    path('user_dashboard/',views.user_dashboard_view,name="user_dashboard_view")
+
 
 
 ]
