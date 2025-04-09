@@ -8,14 +8,14 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.hashers import make_password
-<<<<<<< HEAD
+
 
 from .models import Profile,Restaurant
 from .forms import RestaurantForm
-=======
+
 from .models import Profile  
 
->>>>>>> e4752600748491bea43bc30cea3f181777c090a6
+
 
 # Create your views here.
 def home_view(request):
