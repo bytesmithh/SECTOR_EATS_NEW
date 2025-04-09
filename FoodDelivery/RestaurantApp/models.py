@@ -6,6 +6,9 @@ class Profile(models.Model):
     phone = models.CharField(max_length=15)
     address = models.TextField()
     city = models.CharField(max_length=100)
+    role = models.CharField(max_length=100,default="customer")
+
+    
 
 
 class Restaurant(models.Model):
