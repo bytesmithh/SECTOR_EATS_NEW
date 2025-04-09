@@ -3,14 +3,14 @@ from django.http import JsonResponse
 import requests
 from django.views.decorators.csrf import csrf_exempt
 import re
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.hashers import make_password
 
-from .models import Profile  
-
+from .models import Profile,Restaurant
+from .forms import RestaurantForm
 
 # Create your views here.
 def home_view(request):
@@ -128,5 +128,48 @@ def ai_chat(request):
     
 def chatbot_page(request):
     return render(request, "chatbot.html")
+
+
+def admin_dashboard(request):
+    return render(request,'admin_dashboard.html')
+
+
+def add_restaurant(request):
+    if request.method == 'POST':
+        form = RestaurantForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            
+            messages.success(request, 'Restaurant added successfully!')
+            return redirect('admin_dashboard')  
+    else:
+        form = RestaurantForm()
+
+    return render(request, 'add_restaurant.html', {'form': form})
+def list_restaurants(request):
+    restaurants = Restaurant.objects.all()
+    return render(request, 'list_restaurants.html', {'restaurants': restaurants})
+
+
+
+def delete_restaurant(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+    if request.method == 'POST':
+        restaurant.delete()
+        messages.success(request, f'Restaurant "{restaurant.name}" deleted successfully.')
+        return redirect('admin_dashboard')
+    return render(request, 'confirm_delete.html', {'restaurant': restaurant})
+
+def edit_restaurant(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+    if request.method == 'POST':
+        form = RestaurantForm(request.POST, request.FILES, instance=restaurant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Restaurant updated successfully!")
+            return redirect('list_restaurants')
+    else:
+        form = RestaurantForm(instance=restaurant)
+    return render(request, 'edit_restaurant.html', {'form': form})
 
 

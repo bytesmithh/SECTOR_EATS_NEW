@@ -7,5 +7,19 @@ class Profile(models.Model):
     address = models.TextField()
     city = models.CharField(max_length=100)
 
+
+class Restaurant(models.Model):
+    name = models.CharField(max_length=100)
+    location = models.CharField(max_length=255)
+    cuisine_type = models.CharField(max_length=100)
+    contact = models.CharField(max_length=20)
+    email = models.EmailField()
+    image = models.ImageField(upload_to='restaurant_images/', null=True, blank=True)
+    description = models.TextField()
+    opening_time = models.TimeField()
+    closing_time = models.TimeField()
+    delivery_available = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
     def __str__(self):
-        return f"{self.user.username}'s Profile"
+        return self.name

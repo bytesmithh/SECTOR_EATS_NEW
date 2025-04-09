@@ -8,6 +8,11 @@ urlpatterns=[
     path('about_us/',views.about_us_view,name="about_us_view"),
     path('ai-chat/', views.ai_chat, name='ai_chat'),
     path("chatbot/", views.chatbot_page, name="chatbot_page"),
+    path("admindashboard/",views.admin_dashboard,name="admin_dashboard"),
+    path('admindashboard/add_restaurant/', views.add_restaurant, name='add_restaurant'),
+    path('restaurants/', views.list_restaurants, name='list_restaurants'),
+    path('admindashboard/edit_restaurant/<int:restaurant_id>/', views.edit_restaurant, name='edit_restaurant'),
+    path('admindashboard/delete_restaurant/<int:restaurant_id>/', views.delete_restaurant, name='delete_restaurant'),
 
 
 ]

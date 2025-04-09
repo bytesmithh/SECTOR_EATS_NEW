@@ -1,0 +1,98 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Admin Dashboard | Sector Eats{% endblock %}
+
+{% block content %}
+  <div class="card dark-card">
+    <div>
+      <h3>Order statistics</h3>
+      <p>Updated 1 days ago</p>
+    </div>
+    <canvas id="ordersChart" width="300" height="150"></canvas>
+    <p class="stat">Total Orders: 2,025</p>
+  </div>
+
+  <div class="card light-card">
+    <h3>Recent Transactions</h3>
+    <p>Order #145 - Pizza & Coke</p>
+    <p>$12.50 paid via Card</p>
+  </div>
+
+  <div class="card green-card">
+    <h3>Current Balance</h3>
+    <div>
+      <p class="stat">15,368$</p>
+      <p>14% ↑ (Avg: 18,324$)</p>
+    </div>
+  </div>
+
+  <div class="card light-card">
+    <h3>Upcoming Features</h3>
+    <ul class="timeline">
+      <li><strong>2023:</strong> Launch in new cities</li>
+      <li><strong>2024:</strong> Add loyalty rewards</li>
+      <li><strong>2025:</strong> Partner with top restaurants</li>
+      <li><strong>2027:</strong> AI recommendations</li>
+    </ul>
+  </div>
+
+  <div class="card green-card">
+    <h3>Top Selling Item</h3>
+    <p class="stat">Burger Combo</p>
+    <div class="growth-bar">
+      <div class="growth-fill"></div>
+    </div>
+    <p>+28.21% growth</p>
+  </div>
+
+  <div class="card purple-card">
+    <h3>Monthly Revenue</h3>
+    <p class="stat">$1.3M</p>
+    <canvas id="revenueChart" width="280" height="100"></canvas>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+    new Chart(ordersCtx, {
+      type: 'bar',
+      data: {
+        labels: ['September', 'November'],
+        datasets: [{
+          label: 'Orders',
+          data: [1000, 2025],
+          backgroundColor: ['#9af59a', '#b99fff'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+        datasets: [{
+          label: 'Revenue',
+          data: [300000, 500000, 800000, 1300000],
+          backgroundColor: 'rgba(185, 159, 255, 0.3)',
+          borderColor: '#9d00ff',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  </script>
+{% endblock %}
