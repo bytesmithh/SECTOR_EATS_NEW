@@ -250,7 +250,7 @@ def edit_restaurant(request, restaurant_id):
 
 
 
-@admin_dashboard
+@admin_required
 @login_required
 def add_menu_item(request, restaurant_id):
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
@@ -282,7 +282,7 @@ def restaurant_menu(request, restaurant_id):
     return render(request, 'restaurant_menu.html', {'restaurant': restaurant, 'menu_items': menu_items})
 
 
-@admin_dashboard
+@admin_required
 @login_required
 def edit_menu_item_view(request, item_id):
     item = get_object_or_404(MenuItem, id=item_id)
@@ -295,7 +295,7 @@ def edit_menu_item_view(request, item_id):
         form = MenuItemForm(instance=item)
     return render(request, 'edit_menu_item.html', {'form': form, 'item': item})
 
-@admin_dashboard
+@admin_required
 @login_required
 def delete_menu_item_view(request, item_id):
     item = get_object_or_404(MenuItem, id=item_id)
