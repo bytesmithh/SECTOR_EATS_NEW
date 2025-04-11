@@ -6,90 +6,97 @@
 
 {% block style %}
 <style>
-.hungry-section {
-    padding: 80px 0;
-    background-color: #fff;
-    text-align: center;
-    position: relative;
-}
+    .hungry-section {
+        padding: 80px 0;
+        background-color: #fff;
+        text-align: center;
+        position: relative;
+    }
 
-.hungry-heading {
-    font-size: 5rem;
-    font-weight: bold;
-    letter-spacing: 10px;
-    position: relative;
-    display: inline-block;
-}
+    .hungry-heading {
+        font-size: 5rem;
+        font-weight: bold;
+        letter-spacing: 10px;
+        position: relative;
+        display: inline-block;
+    }
 
-.food-item {
-    margin-top: 40px;
-}
+    .food-item {
+        margin-top: 40px;
+    }
 
-.food-item img {
-    width: auto;
-    height: 80px; /* Set a fixed height */
-    object-fit: contain; /* Ensures images maintain aspect ratio */
-    
+    .food-item img {
+        width: auto;
+        height: 80px;
+        /* Set a fixed height */
+        object-fit: contain;
+        /* Ensures images maintain aspect ratio */
 
-}
+
+    }
 
 
-.order-btn {
-    border: 2px solid black;
-    padding: 8px 16px;
-    text-transform: uppercase;
-    font-weight: bold;
-    background: transparent;
-    transition: 0.3s;
-}
+    .order-btn {
+        border: 2px solid black;
+        padding: 8px 16px;
+        text-transform: uppercase;
+        font-weight: bold;
+        background: transparent;
+        transition: 0.3s;
+    }
 
-.order-btn:hover {
-    background: black;
-    color: white;
-}
-.food-item>h5{
-    margin-top: 2vh;
-    font-family: 'Oswald',sans-serif;
+    .order-btn:hover {
+        background: black;
+        color: white;
+    }
 
-}
+    .food-item>h5 {
+        margin-top: 2vh;
+        font-family: 'Oswald', sans-serif;
 
-.container {
-    padding: 50px;
-}
-.container>h1 {
-    font-size: 50px;
-    font-weight: bold;
-    margin-bottom: 100px;
-    justify-content: center;
-    letter-spacing: 20px; /* Adds space between letters in DELIVERY */
-    display: flex;
-    align-items: center;
+    }
 
-}
+    .container {
+        padding: 50px;
+    }
 
-.bike-icon {
-    font-size: 100px; /* Makes the bike icon large */
-    margin-right: 20px; /* Adds space between bike and text */
-}
+    .container>h1 {
+        font-size: 50px;
+        font-weight: bold;
+        margin-bottom: 100px;
+        justify-content: center;
+        letter-spacing: 20px;
+        /* Adds space between letters in DELIVERY */
+        display: flex;
+        align-items: center;
 
-.icons {
-    display: flex;
-    justify-content: center;
-    gap: 100px; /* Increases space between icons */
-    margin-top: 30px;
-}
+    }
 
-.icon {
-    text-align: center;
-    font-size: 18px;
-    font-family: 'Oswald',sans-serif;
-}
+    .bike-icon {
+        font-size: 100px;
+        /* Makes the bike icon large */
+        margin-right: 20px;
+        /* Adds space between bike and text */
+    }
 
-.icon img {
-    width: 80px;
-    height: 80px;
-}
+    .icons {
+        display: flex;
+        justify-content: center;
+        gap: 100px;
+        /* Increases space between icons */
+        margin-top: 30px;
+    }
 
+    .icon {
+        text-align: center;
+        font-size: 18px;
+        font-family: 'Oswald', sans-serif;
+    }
+
+    .icon img {
+        width: 80px;
+        height: 80px;
+    }
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -107,41 +114,71 @@
             <div class="col-md-2 text-center food-item">
                 <img src="{% static 'images/restaurants/kfc.png' %}" alt="KFC">
                 <h5>KFC</h5>
-                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'user_dashboard_view' %}" class="btn order-btn">Order Now</a>
+                {% else %}
+                <a href="{% url 'login_view' %}" class="btn order-btn">Order Now</a>
+                {% endif %}
+
             </div>
-    
+
             <div class="col-md-2 text-center food-item">
                 <img src="{% static 'images/restaurants/dominos.png' %}" alt="Domino's">
                 <h5>Domino's</h5>
-                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'user_dashboard_view' %}" class="btn order-btn">Order Now</a>
+                {% else %}
+                <a href="{% url 'login_view' %}" class="btn order-btn">Order Now</a>
+                {% endif %}
+
             </div>
-    
+
             <div class="col-md-2 text-center food-item">
                 <img src="{% static 'images/restaurants/mcdonalds.png' %}" alt="McDonald's">
                 <h5>McDonald's</h5>
-                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'user_dashboard_view' %}" class="btn order-btn">Order Now</a>
+                {% else %}
+                <a href="{% url 'login_view' %}" class="btn order-btn">Order Now</a>
+                {% endif %}
+
             </div>
-    
+
             <div class="col-md-2 text-center food-item">
                 <img src="{% static 'images/restaurants/subway.png' %}" alt="Subway">
                 <h5>Subway</h5>
-                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'user_dashboard_view' %}" class="btn order-btn">Order Now</a>
+                {% else %}
+                <a href="{% url 'login_view' %}" class="btn order-btn">Order Now</a>
+                {% endif %}
+
             </div>
-    
+
             <div class="col-md-2 text-center food-item">
                 <img src="{% static 'images/restaurants/starbucks.jpeg' %}" alt="Starbucks">
                 <h5>Starbucks</h5>
-                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'user_dashboard_view' %}" class="btn order-btn">Order Now</a>
+                {% else %}
+                <a href="{% url 'login_view' %}" class="btn order-btn">Order Now</a>
+                {% endif %}
+
             </div>
-    
+
             <div class="col-md-2 text-center food-item">
                 <img src="{% static 'images/restaurants/burgerking.jpg' %}" alt="Burger King">
                 <h5>Burger King</h5>
-                <a href="{% url 'signup_view' %}" class="btn order-btn">Order Now</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'user_dashboard_view' %}" class="btn order-btn">Order Now</a>
+                {% else %}
+                <a href="{% url 'login_view' %}" class="btn order-btn">Order Now</a>
+                {% endif %}
+
             </div>
         </div>
     </div>
-    
+
 </section>
 
 <div class="container">
@@ -172,10 +209,10 @@
         </div>
     </div>
 
-    
+
 </div>
 
-    
+
 
 
 {% endblock %}

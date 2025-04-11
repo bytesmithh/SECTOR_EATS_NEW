@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ restaurant.name }} Menu{% endblock %}
+
+{% block style %}
+<style>
+.menu-container {
+    margin-top: 15vh !important;
+}
+
+/* --------- Restaurant Top Banner --------- */
+.restaurant-hero {
+    position: relative;
+    height: 340px;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+}
+.restaurant-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+}
+
+.restaurant-info-card {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+    background: white;
+    border-radius: 18px;
+    padding: 1.5rem 2rem;
+    width: 480px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.info-top {
+    margin-bottom: 1.2rem;
+}
+.rating-price {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+.cuisine {
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+.location {
+    color: #333;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+}
+.timings {
+    color: #444;
+    font-size: 0.9rem;
+}
+.open-now {
+    color: green;
+    font-weight: bold;
+}
+
+.info-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.btn-orange {
+    background-color: purple;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+.btn-orange:hover {
+    background-color: #cc3a00;
+}
+
+.hero-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #111;
+}
+
+
+/* --------- Menu Items Grid --------- */
+.menu-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+.menu-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out;
+    border: 2px solid black;
+    margin-bottom: 3vh;
+}
+.menu-card:hover {
+    transform: translateY(-5px);
+}
+.menu-left {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.menu-left h4 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+.menu-left p {
+    font-size: 0.95rem;
+    color: #555;
+}
+.menu-left .menu-price {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    color: #111;
+}
+
+.menu-right {
+    flex: 0 0 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+}
+.menu-right img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+}
+.add-btn {
+    background-color: purple;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.4rem;
+    transition: background 0.3s ease;
+}
+.add-btn:hover {
+    background-color: #5e0a8e;
+}
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="container menu-container">
+
+    <div class="restaurant-hero">
+        <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+        
+        <div class="restaurant-info-card">
+            <h1 class="hero-title">Menu for {{ restaurant.name }}</h1>
+
+            <div class="info-top">
+                <div class="rating-price">
+                    ⭐ 4.2 • 884 Google reviews • ₹55 for two
+                </div>
+                <div class="cuisine">
+                    {{ restaurant.cuisine_type }}
+                </div>
+                <div class="location">
+                    📍 {{ restaurant.location }}
+                </div>
+                <div class="timings">
+                    <span class="open-now">Open now</span> • OPEN TILL {{ restaurant.closing_time }}
+                </div>
+            </div>
+            <div class="info-actions">
+                <a href="#" class="btn-orange">📅 Book Table</a>
+                <a href="tel:{{ restaurant.phone }}" class="btn-orange">📞 Call</a>
+                <a href="https://www.google.com/maps?q={{ restaurant.location|urlencode }}" target="_blank" class="btn-orange">📍 Direction</a>
+            </div>
+        </div>
+    </div>
+    
+
+    {% if menu_items %}
+    <div class="menu-grid">
+        {% for item in menu_items %}
+        <div class="menu-card">
+            <!-- Left: Text -->
+            <div class="menu-left">
+                <h4 style="text-transform: uppercase;">{{ item.name }}</h4>
+                <p>{{ item.description|truncatewords:15 }}</p>
+                <div class="menu-price">₹{{ item.price }}</div>
+            </div>
+            <!-- Right: Image + Button -->
+            <div class="menu-right">
+                <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                <a href="#" class="add-btn">Add</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No menu items available for this restaurant.</p>
+    {% endif %}
+</div>
+{% endblock %}

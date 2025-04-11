@@ -1,13 +1,224 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Restaurants{% endblock %}
 
 {% block style %}
+<style>
 
-    
+.restaurant-card {
+    position: relative;
+    display: flex;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    transition: all 0.2s ease-in-out;
+    border: 2px solid gray;
+}
+.restaurant-card:hover {
+    transform: scale(0.98);
+    border: 2px solid purple;
+}
+.restaurant-image {
+    width: 40%;
+    object-fit: cover;
+    height: 100%;
+}
+.restaurant-info {
+    padding: 2rem;
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.8rem;
+    background-color: #faf9f9;
+    transition: background-color 0.3s ease;
+    border-left: 3px solid #f3f3f3;
+}
+.restaurant-info:hover h2 {
+    color: purple;
+    text-shadow: 1px 1px 4px rgba(128, 0, 128, 0.2);
+}
+.restaurant-info h2 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+.restaurant-info p {
+    color: #444;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+}
+.restaurant-info p strong {
+    color: #111;
+    font-weight: 600;
+    margin-right: 5px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Overlay */
+.card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(69, 66, 66, 0.6);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 10;
+    backdrop-filter: blur(2px);
+}
+
+/* Horizontal card carousel */
+.horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+}
+.horizontal-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+.horizontal-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+.mini-card {
+    flex: 0 0 280px;
+    scroll-snap-align: start;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    position: relative;
+    background: #fff;
+    border: 2px solid gray;
+}
+.mini-card:hover {
+    transform: scale(1.02);
+    border:2px solid purple;
+}
+.mini-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+.mini-card-body {
+    padding: 1rem;
+    text-align: center !important; /* <-- Add this line */
+
+}
+.mini-card-body h5 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+.mini-card-body p {
+    font-size: 0.9rem;
+    margin: 0.2rem 0;
+}
+.mini-card-body a {
+    font-size: 0.85rem;
+    color: white;
+    background-color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 0.5rem;
+    text-decoration: none;
+}
+
+.mini-card-body h3,
+.mini-card-body p {
+    text-align: center;
+}
+
+.horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+}
+.horizontal-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+
+</style>
 {% endblock %}
 
 {% block main %}
+<div class="container mt-5" style="margin-top: 15vh !important;">
+    <h1 class="mb-5" style="font-family: 'Oswald', sans-serif; letter-spacing: 3px;">All Restaurants</h1>
 
+    {% if restaurants %}
+        {# -------- First Restaurant (Full Width) -------- #}
+        {% with restaurant=restaurants.0 %}
+            {% if restaurant.delivery_available %}
+                <a href="{% url 'restaurant_menu' restaurant.id %}" style="text-decoration: none; color: inherit;">
+            {% endif %}
+            <div class="restaurant-card">
+                {% if not restaurant.delivery_available %}
+                <div class="card-overlay">We are not serving currently</div>
+                {% endif %}
+                <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" class="restaurant-image">
+                <div class="restaurant-info">
+                    <h2>{{ restaurant.name }}</h2>
+                    <p><strong>📍 Location:</strong> {{ restaurant.location }}</p>
+                    <p><strong>🍽️ Cuisine:</strong> {{ restaurant.cuisine_type }}</p>
+                    <p><strong>🕓 Hours:</strong> {{ restaurant.opening_time }} - {{ restaurant.closing_time }}</p>
+                    <p><strong>📝 Description:</strong> {{ restaurant.description|truncatewords:20 }}</p>
+                </div>
+            </div>
+            {% if restaurant.delivery_available %}
+                </a>
+            {% endif %}
+        {% endwith %}
 
+        {# -------- Horizontal Scroll Cards for Remaining -------- #}
+        {% if restaurants|length > 1 %}
+        <h1 class="mb-3" style="font-family: 'Oswald',sans-serif;">Other Restaurants</h1>
+        <div class="horizontal-scroll">
+            {% for restaurant in restaurants|slice:"1:" %}
+                {% if restaurant.delivery_available %}
+                    <a href="{% url 'restaurant_menu' restaurant.id %}" style="text-decoration: none; color: inherit;">
+                {% endif %}
+                <div class="mini-card">
+                    {% if not restaurant.delivery_available %}
+                    <div class="card-overlay">We are not serving currently</div>
+                    {% endif %}
+                    <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                    <div class="mini-card-body">
+                        <h3 style="text-transform: uppercase;">{{ restaurant.name }}</h3>
+                        <p><strong>📍</strong> {{ restaurant.location }}</p>
+                        <p><strong>🍽️</strong> {{ restaurant.cuisine_type }}</p>
+                        {% if restaurant.delivery_available %}
+                        <a href="{% url 'restaurant_menu' restaurant.id %}">View Menu</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if restaurant.delivery_available %}
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% else %}
+        <p>No restaurants available at the moment.</p>
+    {% endif %}
+</div>
 {% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'admin_base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Add Menu Item{% endblock %}
+
+{% block style %}
+
+<style>
+@keyframes shake {
+  0% { transform: translate(-50%, -50%) translateX(0); }
+  25% { transform: translate(-50%, -50%) translateX(-5px); }
+  50% { transform: translate(-50%, -50%) translateX(5px); }
+  75% { transform: translate(-50%, -50%) translateX(-5px); }
+  100% { transform: translate(-50%, -50%) translateX(0); }
+}
+
+.shake {
+  animation: shake 0.5s infinite;
+}
+
+</style>
+
+  
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="card light-card p-4 mx-auto" style="max-width: 700px;">
+    <h2 class="mb-4 text-center" style="font-family: 'Oswald', sans-serif;">
+      Add Menu Item for {{ restaurant.name }}
+    </h2>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label">Item Name</label>
+        {{ form.name|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        {{ form.description|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Price</label>
+        {{ form.price|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Image</label>
+        {{ form.image|add_class:"form-control" }}
+      </div>
+
+      <button type="submit" class="btn btn-dark w-100 mt-3">Add Item</button>
+    </form>
+  </div>
+
+  <hr class="my-5">
+
+  <h3 class="text-center" style="font-family: 'Oswald', sans-serif;">Existing Menu Items</h3>
+
+  {% if menu_items %}
+  <div class="table-responsive mt-4">
+    <table class="table table-bordered table-hover align-middle text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price (₹)</th>
+          <th>Image</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in menu_items %}
+        <tr>
+          <td>{{ item.name }}</td>
+          <td>{{ item.description|truncatewords:10 }}</td>
+          <td>{{ item.price }}</td>
+          <td>
+            <img src="{{ item.image.url }}" alt="{{ item.name }}" style="height: 60px; width: auto; border-radius: 6px;">
+          </td>
+          <td>
+            <a href="{% url 'edit_menu_item' item.id %}" class="btn btn-sm btn-warning">Edit</a>
+            <a href="#" class="btn btn-sm btn-danger" onclick="openDeleteModal('{{ item.id }}')">Delete</a>
+
+          </td>
+          
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+   <!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display:none;">
+  <div class="modal-content shake" style="
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    text-align: center;
+  ">
+    <h5 style="font-family: 'Oswald', sans-serif;">Are you sure you want to delete this item?</h5>
+    <div class="d-flex justify-content-end mt-4">
+      <button class="btn btn-secondary me-2" onclick="closeModal()">Cancel</button>
+      <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div id="modalBackdrop" style="
+  display:none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+"></div>
+
+
+  </div>
+  {% else %}
+  <p class="mt-4 text-muted text-center">No menu items found for this restaurant.</p>
+  {% endif %}
+</div>
+
+
+<script>
+  function openDeleteModal(itemId) {
+      const modal = document.getElementById('deleteModal');
+      const backdrop = document.getElementById('modalBackdrop');
+      const confirmBtn = document.getElementById('confirmDeleteBtn');
+  
+      confirmBtn.href = `/menu/${itemId}/delete/`;  // Make sure your delete URL pattern is correct
+  
+      modal.style.display = 'block';
+      backdrop.style.display = 'block';
+  }
+  
+  function closeModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+      document.getElementById('modalBackdrop').style.display = 'none';
+  }
+  </script>
+  
+{% endblock %}

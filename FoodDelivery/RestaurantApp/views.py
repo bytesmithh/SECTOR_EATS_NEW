@@ -6,11 +6,20 @@ import re
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth import login,authenticate
+from django.contrib.auth import login,authenticate,logout
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.decorators import login_required
+
+from .decorators import admin_required
 
 
-from .models import Profile,Restaurant
+
+
+
+from .forms import MenuItemForm
+
+
+from .models import Profile,Restaurant,MenuItem
 from .forms import RestaurantForm
 
 from .models import Profile  
@@ -84,14 +93,11 @@ def login_view(request):
 
         try:
             user_obj = User.objects.get(email=email)
-            print("User found:", user_obj.username)
         except User.DoesNotExist:
-            print("User not found")
             messages.error(request, "Invalid email or password.")
             return redirect('login_view')
 
         user = authenticate(request, username=user_obj.username, password=password)
-        print("Authenticated user:", user)
 
         if user is not None:
             login(request, user)
@@ -100,7 +106,7 @@ def login_view(request):
             messages.success(request, f"Welcome, {user.username}!")
 
             if profile.role == 'restaurant_admin':
-                return redirect('home_view')
+                return redirect('admin_dashboard')
             else:
                 return redirect('user_dashboard_view')
         else:
@@ -114,11 +120,18 @@ def login_view(request):
 def about_us_view(request):
     return render(request,"about_us.html")
 
+def logout_view(request):
+    logout(request)
+    return redirect('login_view')  
+
 
 
 #logic for Ai model integration
 
 HUGGINGFACE_API_KEY = "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"  
+
+
+
 
 @csrf_exempt
 def ai_chat(request):
@@ -167,19 +180,25 @@ def ai_chat(request):
 
         return JsonResponse({"reply": reply})
     
+
+
 def chatbot_page(request):
     return render(request, "chatbot.html")
 
+@login_required
 def user_dashboard_view(request):
-    return render(request,"user_dashboard.html")
+    restaurants = Restaurant.objects.filter(is_active=True)
+    return render(request, "user_dashboard.html", {'restaurants': restaurants})
 
 
 
-
+@admin_required
+@login_required
 def admin_dashboard(request):
     return render(request,'admin_dashboard.html')
 
-
+@admin_required
+@login_required
 def add_restaurant(request):
     if request.method == 'POST':
         form = RestaurantForm(request.POST, request.FILES)
@@ -192,12 +211,17 @@ def add_restaurant(request):
         form = RestaurantForm()
 
     return render(request, 'add_restaurant.html', {'form': form})
+
+
+@admin_required
+@login_required
 def list_restaurants(request):
     restaurants = Restaurant.objects.all()
     return render(request, 'list_restaurants.html', {'restaurants': restaurants})
 
 
-
+@admin_required
+@login_required
 def delete_restaurant(request, restaurant_id):
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
     if request.method == 'POST':
@@ -206,6 +230,8 @@ def delete_restaurant(request, restaurant_id):
         return redirect('admin_dashboard')
     return render(request, 'confirm_delete.html', {'restaurant': restaurant})
 
+@admin_required
+@login_required
 def edit_restaurant(request, restaurant_id):
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
     if request.method == 'POST':
@@ -217,5 +243,64 @@ def edit_restaurant(request, restaurant_id):
     else:
         form = RestaurantForm(instance=restaurant)
     return render(request, 'edit_restaurant.html', {'form': form})
+
+
+
+
+
+
+
+@admin_dashboard
+@login_required
+def add_menu_item(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+    
+    if request.method == 'POST':
+        form = MenuItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            menu_item = form.save(commit=False)
+            menu_item.restaurant = restaurant
+            menu_item.save()
+            messages.success(request, 'Menu item added successfully!')
+            return redirect('list_restaurants')  # Or redirect to a restaurant detail page if you have it
+    else:
+        form = MenuItemForm()
+    
+    menu_items = MenuItem.objects.filter(restaurant=restaurant)
+    return render(request, 'add_menu_item.html', {
+      'form': form,
+      'restaurant': restaurant,
+      'menu_items': menu_items
+     })
+
+
+
+@login_required
+def restaurant_menu(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id, delivery_available=True)
+    menu_items = MenuItem.objects.filter(restaurant=restaurant)
+    return render(request, 'restaurant_menu.html', {'restaurant': restaurant, 'menu_items': menu_items})
+
+
+@admin_dashboard
+@login_required
+def edit_menu_item_view(request, item_id):
+    item = get_object_or_404(MenuItem, id=item_id)
+    if request.method == 'POST':
+        form = MenuItemForm(request.POST, request.FILES, instance=item)
+        if form.is_valid():
+            form.save()
+            return redirect('add_menu_item', restaurant_id=item.restaurant.id)
+    else:
+        form = MenuItemForm(instance=item)
+    return render(request, 'edit_menu_item.html', {'form': form, 'item': item})
+
+@admin_dashboard
+@login_required
+def delete_menu_item_view(request, item_id):
+    item = get_object_or_404(MenuItem, id=item_id)
+    restaurant_id = item.restaurant.id
+    item.delete()
+    return redirect('add_menu_item', restaurant_id=restaurant_id)
 
 
