@@ -23,6 +23,7 @@ class Restaurant(models.Model):
     closing_time = models.TimeField()
     delivery_available = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    admin = models.ForeignKey(User, on_delete=models.CASCADE)  
 
     def __str__(self):
         return self.name

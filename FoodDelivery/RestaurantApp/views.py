@@ -202,22 +202,29 @@ def admin_dashboard(request):
 def add_restaurant(request):
     if request.method == 'POST':
         form = RestaurantForm(request.POST, request.FILES)
+        print("Form Submitted")  # debug
+
         if form.is_valid():
-            form.save()
-            
+            restaurant = form.save(commit=False)
+            restaurant.admin = request.user
+            restaurant.save()
             messages.success(request, 'Restaurant added successfully!')
-            return redirect('admin_dashboard')  
+            return redirect('admin_dashboard')
+        else:
+            print("Form errors:", form.errors)  # debug
     else:
         form = RestaurantForm()
 
     return render(request, 'add_restaurant.html', {'form': form})
 
 
+
 @admin_required
 @login_required
 def list_restaurants(request):
-    restaurants = Restaurant.objects.all()
+    restaurants = Restaurant.objects.filter(admin=request.user)  # 👈 Only owned restaurants
     return render(request, 'list_restaurants.html', {'restaurants': restaurants})
+
 
 
 @admin_required
