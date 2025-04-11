@@ -20,6 +20,8 @@ class RestaurantForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
+        exclude = ['admin']  
+
 class MenuItemForm(forms.ModelForm):
     class Meta:
         model = MenuItem
