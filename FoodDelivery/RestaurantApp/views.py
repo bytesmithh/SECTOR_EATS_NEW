@@ -11,21 +11,15 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 import json
-
 from .decorators import admin_required,user_required
-
 from FoodReview.models import Feedback
-
-
-
-
-
-
+import random
+from django.core.mail import send_mail
 from .forms import MenuItemForm
-
-
 from .models import Profile,Restaurant,MenuItem,Cart, Order, OrderItem
 from .forms import RestaurantForm
+
+
 
 
 
@@ -480,6 +474,43 @@ def admin_feedback(request):
 def order_detail(request, order_id):
     order = Order.objects.get(id=order_id)
     return render(request, 'order_detail.html', {'order': order})
+
+
+def check_phone(request):
+    phone = request.GET.get('phone')
+    if phone:
+        # Check if the phone exists in the database
+        user_exists = Profile.objects.filter(phone=phone).exists()  # Using Profile model
+        return JsonResponse({'exists': user_exists})
+    return JsonResponse({'exists': False})
+
+
+def phone_login_view(request):
+    if request.method == "POST":
+        data = json.loads(request.body)  # This will load the data sent in the fetch request
+        phone = data.get('phone')
+        password = data.get('password')
+
+        try:
+            profile = Profile.objects.get(phone=phone)
+            user = profile.user  # assuming OneToOneField to User
+            authenticated_user = authenticate(request, username=user.username, password=password)
+
+            if authenticated_user:
+                login(request, authenticated_user)
+                return JsonResponse({"success": True, "redirect_url": '/'})  # You can specify a URL here to redirect after login
+            else:
+                return JsonResponse({"success": False, "message": "Invalid password."})
+        except Profile.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Phone number not registered."})
+    return JsonResponse({"success": False, "message": "Invalid request."})
+
+
+
+
+
+
+
 
 
 

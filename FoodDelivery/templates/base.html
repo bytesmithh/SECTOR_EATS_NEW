@@ -249,26 +249,41 @@
     </nav>
 
     <div class="offcanvas offcanvas-end" id="loginCanvas" style="z-index:2000;">
-
         <div class="offcanvas-header">
             <h5 class="m-0" style="font-size: 5vh;">Welcome to Sector Eats</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body text-center" style="font-family: 'Oswald', sans-serif;">
             <h5 class="mb-3">Login with Phone</h5>
+        
+            <!-- Phone Input -->
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Phone Input -->
+                <div class="form-floating">
+                    <input type="tel" name="phone" class="form-control" id="phoneInput" maxlength="10"
+                        placeholder="Enter phone number" oninput="validatePhoneNumber(this)">
+                    <label for="phoneInput">Phone Number</label>
+                </div>
+            
+                <!-- Password Input (hidden initially) -->
+                <div class="form-floating mt-3" id="passwordDiv" style="display: none;">
+                    <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Enter Password">
+                    <label for="passwordInput">Password</label>
+                </div>
+            
+                <!-- Continue/Login button -->
+                <button type="button" class="btn btn-dark w-100 mt-3 custom-btn" id="continueBtn">Continue</button>
+            </form>
     
-            <div class="form-floating">
-                <input type="tel" class="form-control" id="phoneInput" maxlength="10" placeholder="Enter phone number"
-                    oninput="validatePhoneNumber(this)">
-                <label for="phoneInput">Phone Number</label>
-            </div>
-    
-            <button class="btn btn-dark w-100 mt-3 custom-btn">Continue</button>
             <p class="mt-3">
-                <a href="{% url 'login_view' %}" class="text-decoration-none login-email" >Login through email instead</a>
+                <a href="{% url 'login_view' %}" class="text-decoration-none login-email">Login through email instead</a>
             </p>
         </div>
     </div>
+    
+    
 
     <main>
         {% block main %}
@@ -378,6 +393,53 @@
                 bsToast.show();
             });
         });
+
+        document.getElementById("continueBtn").addEventListener("click", function () {
+            const phone = document.getElementById("phoneInput").value;
+            const passwordDiv = document.getElementById("passwordDiv");
+            const passwordInput = document.getElementById("passwordInput");
+            const continueBtn = document.getElementById("continueBtn");
+        
+            if (!passwordDiv.style.display || passwordDiv.style.display === "none") {
+                // Check if phone exists by making a fetch request
+                fetch(`/check-phone/?phone=${phone}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            passwordDiv.style.display = "block";  // Show password input
+                            continueBtn.innerText = "Login";  // Change button text to 'Login'
+                        } else {
+                            alert("Phone number not registered.");
+                        }
+                    });
+            } else {
+                // Try to login with phone and password
+                const password = passwordInput.value;
+                fetch('/phone-login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value  // Add the CSRF token here
+                    },
+                    body: JSON.stringify({ phone, password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect_url || "/";
+                    } else {
+                        alert("Invalid password");
+                    }
+                });
+            }
+        });
+        
+        
+        
+    </script>
+    
+    <script>
+        const csrfToken = '{{ csrf_token }}';
     </script>
     
       
@@ -385,6 +447,9 @@
     {% block script %}
         
     {% endblock %}
+
+    
+        
     
 </body>
 </html>
