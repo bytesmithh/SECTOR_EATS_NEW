@@ -83,6 +83,19 @@
         text-align: center;
         padding: 20px;
     }
+
+    .feedback-prompt {
+        background-color: #f4f7fc;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+        border: 1px solid #dee2e6;
+        text-align: center;
+    }
+
+    .feedback-prompt .btn {
+        margin-top: 15px;
+    }
 </style>
 {% endblock %}
 
@@ -127,6 +140,16 @@
                     <div class="fw-semibold text-success">₹{{ item.price|floatformat:2 }}</div>
                 </div>
             {% endfor %}
+
+            {% if order.status == 'Delivered' %}
+                <!-- Feedback Prompt Section -->
+                <div class="feedback-prompt">
+                    <p>We hope you enjoyed your meal! Your feedback matters to us.</p>
+                    <a href="{% url 'feedback' %}?order_id={{ order.id }}" class="btn btn-primary">
+                        Share Feedback
+                    </a>
+                </div>
+            {% endif %}
         </div>
     {% empty %}
         <p class="text-center text-muted">You haven't placed any orders yet.</p>

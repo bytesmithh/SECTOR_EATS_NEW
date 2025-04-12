@@ -14,6 +14,9 @@ import json
 
 from .decorators import admin_required,user_required
 
+from FoodReview.models import Feedback
+
+
 
 
 
@@ -466,6 +469,17 @@ def admin_recent_orders(request):
 def user_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related('items__item').order_by('-created_at')
     return render(request, 'user_orders.html', {'orders': orders})
+
+
+
+def admin_feedback(request):
+    # Fetch all feedback
+    feedbacks = Feedback.objects.all().order_by('-submitted_at')  # Order by submission time, latest first
+    return render(request, 'admin_feedback.html', {'feedbacks': feedbacks})
+
+def order_detail(request, order_id):
+    order = Order.objects.get(id=order_id)
+    return render(request, 'order_detail.html', {'order': order})
 
 
 

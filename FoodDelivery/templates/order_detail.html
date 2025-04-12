@@ -1,0 +1,91 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Order #{{ order.id }} Details{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center mt-5">
+    <div class="card shadow-lg w-100" style="max-width: 800px;">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0" style="font-family: 'Oswald', sans-serif;">Order #{{ order.id }} - Details</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="mb-3 text-decoration-underline">Customer Information</h5>
+            <p><strong>Name:</strong> {{ order.user.get_username }}</p>
+            <p><strong>Phone:</strong> {{ order.phone }}</p>
+            <p><strong>Address:</strong> {{ order.address }}, {{ order.city }}</p>
+
+            <hr>
+
+            <h5 class="mb-3 text-decoration-underline">Order Summary</h5>
+            <p><strong>Status:</strong> 
+                <span class="badge 
+                    {% if order.status == 'Delivered' %}bg-success
+                    {% elif order.status == 'Out for Delivery' %}bg-warning text-dark
+                    {% elif order.status == 'Accepted' %}bg-info text-dark
+                    {% elif order.status == 'Rejected' %}bg-danger
+                    {% else %}bg-secondary
+                    {% endif %}
+                ">
+                    {{ order.status }}
+                </span>
+            </p>
+            <p><strong>Placed On:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+            <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+
+            <hr>
+
+            <h5 class="mb-3 text-decoration-underline">Ordered Items</h5>
+            <ul class="list-group mb-3">
+                {% for item in order.items.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ item.item.name }}</strong> <br>
+                            <small>Qty: {{ item.quantity }}</small>
+                        </div>
+                        <span>₹{{ item.price|floatformat:2 }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {% if order.feedbacks.exists %}
+            <hr>
+            <h5 class="mb-3 text-decoration-underline">Feedback</h5>
+            {% for feedback in order.feedbacks.all %}
+                <p><strong>Mood:</strong> 
+                    {% if feedback.mood == 1 %}Very Bad 😡
+                    {% elif feedback.mood == 2 %}Okay 😐
+                    {% elif feedback.mood == 3 %}Good 🙂
+                    {% elif feedback.mood == 4 %}Excellent 🤩
+                    {% endif %}
+                </p>
+                <p><strong>Delivery Speed:</strong> {{ feedback.delivery_speed }}</p>
+                <p><strong>Etiquette Rating:</strong> {{ feedback.etiquette_rating }}</p>
+                <p><strong>Temperature:</strong> {{ feedback.temperature|title }}</p>
+                <p><strong>Issues:</strong>
+                    {% if feedback.issues %}
+                        <ul>
+                            {% for issue in feedback.issues %}
+                                <li>{{ issue|title }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        No issues reported.
+                    {% endif %}
+                </p>
+                <p><strong>Comments:</strong> {{ feedback.feedback|default:"No comments." }}</p>
+                <p><strong>Submitted At:</strong> {{ feedback.submitted_at|date:"M d, Y H:i" }}</p>
+                {% if feedback.food_photo %}
+                    <div class="mb-3">
+                        <strong>Photo:</strong><br>
+                        <img src="{{ feedback.food_photo.url }}" class="img-fluid rounded shadow-sm" alt="Food Photo" width="300">
+                    </div>
+                {% endif %}
+                {% if not forloop.last %}<hr>{% endif %}
+            {% endfor %}
+            {% else %}
+                <div class="alert alert-light border mt-3">No feedback submitted for this order.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

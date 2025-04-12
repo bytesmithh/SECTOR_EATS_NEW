@@ -34,6 +34,9 @@ urlpatterns=[
 
     path('admin/recent-orders/', views.admin_recent_orders, name='admin_recent_orders'),
     path('my-orders/', views.user_orders, name='user_orders'),
+    path('admin/feedback/', views.admin_feedback, name='admin_feedback'),
+
+    path('order/<int:order_id>/', views.order_detail, name='order_detail'),
 
 
 

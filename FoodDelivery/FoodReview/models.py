@@ -1,4 +1,5 @@
 from django.db import models
+from RestaurantApp.models import Order
 
 class Feedback(models.Model):
     MOOD_CHOICES = (
@@ -30,6 +31,9 @@ class Feedback(models.Model):
     issues = models.JSONField(default=list, blank=True)  # stores list of issues
 
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='feedbacks')  # Link feedback to an order
+
 
     def __str__(self):
         return f"Feedback #{self.id} - Mood: {self.mood}"
