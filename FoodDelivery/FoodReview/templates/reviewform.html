@@ -150,9 +150,12 @@
 
       <div class="mb-4 form-section">
         <label for="id_delivery_speed" class="form-label fw-semibold">Delivery Speed</label>
-        {{ form.delivery_speed|add_class:"form-range" }}
-        <div id="speedFeedback">5</div>
+        <div class="d-flex align-items-center gap-3">
+          {{ form.delivery_speed|add_class:"form-range" }}
+          <div id="speedFeedback" class="text-end flex-grow-1"></div>
+        </div>
       </div>
+      
 
       <div class="mb-4 form-section">
         <label class="form-label fw-semibold">How was your experience with the delivery person?</label>
@@ -172,9 +175,19 @@
       </div>
 
       <div class="mb-4 form-section">
-        <label class="form-label fw-semibold">Was your food still hot?</label>
-        {{ form.temperature }}
+        <label class="form-label fw-semibold d-block">Was your food still hot?</label>
+        <div class="d-flex gap-4 flex-wrap">
+          {% for radio in form.temperature %}
+            <div class="form-check">
+              {{ radio.tag }}
+              <label class="form-check-label" for="{{ radio.id_for_label }}">
+                {{ radio.choice_label }}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
       </div>
+      
 
       <div class="mb-4 form-section">
         <label class="form-label fw-semibold">Your feedback</label>
@@ -183,8 +196,24 @@
 
       <div class="mb-4 form-section">
         <label class="form-label fw-semibold">Did you face any issues?</label>
-        {{ form.issues }}
+        <div class="d-flex flex-wrap gap-3">
+
+          {% for checkbox in form.issues %}
+            <div class="form-check">
+              <input type="checkbox" name="{{ checkbox.name }}" value="{{ checkbox.choice_value }}"
+                     id="{{ checkbox.id_for_label }}" class="form-check-input"
+                     {% if checkbox.is_checked %}checked{% endif %}>
+              <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                {{ checkbox.choice_label }}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+        {{ form.issues.errors }}
       </div>
+      
+      
+      
 
       <div class="form-section">
         <button class="btn btn-danger w-100" type="submit">Submit Feedback</button>
@@ -227,20 +256,29 @@
   });
 
   // Slider dynamic feedback
+
   const slider = document.getElementById('id_delivery_speed');
   const speedFeedback = document.getElementById('speedFeedback');
-  if (slider) {
-    const updateSpeedText = (value) => {
+
+  if (slider && speedFeedback) {
+    const updateSpeedText = (val) => {
+      const value = parseInt(val);
       let text = 'Average';
       if (value <= 3) text = 'Slow';
       else if (value <= 7) text = 'Average';
       else text = 'Fast';
-      speedFeedback.textContent = text + ' (' + value + ')';
-    }
-    updateSpeedText(slider.value);
-    slider.addEventListener('input', () => updateSpeedText(slider.value));
+      speedFeedback.textContent = `${text}`;
+
+    };
+
+    updateSpeedText(slider.value); // initial update
+
+    slider.addEventListener('input', () => {
+      updateSpeedText(slider.value);
+    });
   }
 </script>
+
 
 </body>
 </html>
