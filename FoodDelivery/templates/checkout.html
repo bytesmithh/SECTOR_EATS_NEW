@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Checkout{% endblock %}
+
+{% block style %}
+<style>
+    .checkout-container {
+        max-width: 800px;
+        margin: 60px auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .checkout-header {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+
+    .info-section, .order-summary {
+        margin-bottom: 25px;
+    }
+
+    .info-section h3, .order-summary h3 {
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 5px;
+    }
+
+    .info-item {
+        margin: 8px 0;
+        font-size: 1rem;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #ccc;
+    }
+
+    .order-total {
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-align: right;
+        margin-top: 10px;
+        border-top: 2px solid #000;
+        padding-top: 10px;
+    }
+
+    .btn-confirm {
+        background-color: #28a745;
+        color: white;
+        padding: 12px 28px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-confirm:hover {
+        background-color: #218838;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="checkout-container">
+    <div class="checkout-header">🧾 Checkout</div>
+
+    <div class="info-section">
+        <h3>Customer Info</h3>
+        <div class="info-item">Name: {{ customer.name }}</div>
+        <div class="info-item">Email: {{ customer.email }}</div>
+        <div class="info-item">Phone: {{ customer.phone }}</div>
+        <div class="info-item">Address: {{ customer.address }}</div>
+        <div class="info-item">City: {{ customer.city }}</div>
+    </div>
+
+    <div class="order-summary">
+        <h3>Order Summary</h3>
+        {% for item in cart_items %}
+            <div class="order-item">
+                <div>{{ item.item.name }} (x{{ item.quantity }})</div>
+                <div>₹{{ item.total_price }}</div>
+            </div>
+        {% endfor %}
+        <div class="order-total">Total: ₹{{ total }}</div>
+    </div>
+
+    <form method="post" action="{% url 'place_order' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-confirm">✅ Confirm & Place Order</button>
+    </form>
+</div>
+{% endblock %}

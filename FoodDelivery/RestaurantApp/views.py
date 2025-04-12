@@ -9,8 +9,13 @@ from django.contrib import messages
 from django.contrib.auth import login,authenticate,logout
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+import json
 
-from .decorators import admin_required
+from .decorators import admin_required,user_required
+
+from FoodReview.models import Feedback
+
 
 
 
@@ -19,10 +24,8 @@ from .decorators import admin_required
 from .forms import MenuItemForm
 
 
-from .models import Profile,Restaurant,MenuItem
+from .models import Profile,Restaurant,MenuItem,Cart, Order, OrderItem
 from .forms import RestaurantForm
-
-from .models import Profile  
 
 
 
@@ -138,13 +141,11 @@ def ai_chat(request):
     if request.method == 'POST':
         user_input = request.POST.get('message', '')
 
-        allowed_keywords = ['order', 'menu', 'food', 'delivery', 'track', 'cancel', 'status', 'item']
+        allowed_keywords = ['order', 'menu', 'food', 'delivery', 'track', 'cancel', 'status', 'item','burger','pizza','sandwich']
         if not any(word in user_input for word in allowed_keywords):
             return JsonResponse({
                 'reply': '❌ I can only help with food orders, menus, or delivery queries. Please keep your questions related.'
             })
-
-
 
         if not user_input:
             return JsonResponse({"reply": "Please enter a message."})
@@ -186,9 +187,19 @@ def chatbot_page(request):
     return render(request, "chatbot.html")
 
 @login_required
+@user_required
 def user_dashboard_view(request):
-    restaurants = Restaurant.objects.filter(is_active=True)
+    user_profile = request.user.profile  # Assuming Profile has OneToOne with User
+    user_city = user_profile.city.lower()
+
+    restaurants = Restaurant.objects.filter(
+        is_active=True,
+        location__icontains=user_city
+    )
+
     return render(request, "user_dashboard.html", {'restaurants': restaurants})
+
+
 
 
 
@@ -252,11 +263,6 @@ def edit_restaurant(request, restaurant_id):
     return render(request, 'edit_restaurant.html', {'form': form})
 
 
-
-
-
-
-
 @admin_required
 @login_required
 def add_menu_item(request, restaurant_id):
@@ -309,5 +315,176 @@ def delete_menu_item_view(request, item_id):
     restaurant_id = item.restaurant.id
     item.delete()
     return redirect('add_menu_item', restaurant_id=restaurant_id)
+
+
+
+
+@login_required
+@user_required  
+def user_profile_view(request):
+    profile = Profile.objects.get(user=request.user)
+    return render(request, 'user_profile.html', {'profile': profile})
+
+
+
+@login_required
+def add_to_cart(request, item_id):
+    item = get_object_or_404(MenuItem, id=item_id)
+
+    # Get quantity from GET parameters (default to 1 if not provided)
+    try:
+        qty = int(request.GET.get('qty', 1))
+        if qty < 1:
+            qty = 1
+    except ValueError:
+        qty = 1
+
+    cart_item, created = Cart.objects.get_or_create(user=request.user, item=item)
+    
+    if created:
+        cart_item.quantity = qty
+    else:
+        cart_item.quantity += qty
+
+    cart_item.save()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'message': f'Added {qty} item(s) to cart'})
+    
+    return redirect('view_cart')
+
+
+
+@login_required
+def view_cart(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    total = sum(item.total_price() for item in cart_items)
+    return render(request, 'view_cart.html', {'cart_items': cart_items, 'total': total})
+
+
+
+@login_required
+@require_POST
+def empty_cart(request):
+    Cart.objects.filter(user=request.user).delete()
+    return redirect('view_cart')
+
+@csrf_exempt
+@login_required
+def update_quantity_ajax(request, item_id):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        cart_item = get_object_or_404(Cart, user=request.user, item_id=item_id)
+        data = json.loads(request.body)
+        change = data.get('change', 0)
+        cart_item.quantity = max(1, cart_item.quantity + int(change))
+        cart_item.save()
+        return JsonResponse({'success': True, 'new_quantity': cart_item.quantity})
+    return JsonResponse({'success': False}, status=400)
+
+@login_required
+def checkout_view(request):
+    user = request.user
+
+    cart_items = Cart.objects.filter(user=user)
+    total = sum(item.total_price() for item in cart_items)
+
+
+    # Assuming user has a profile with name, email, etc.
+    customer = {
+        'name': user.get_full_name(),
+        'email': user.email,
+        'phone': user.profile.phone,
+        'address': user.profile.address,
+        'city': user.profile.city,
+    }
+
+    context = {
+        'customer': customer,
+        'cart_items': cart_items,
+        'total': total,
+    }
+    return render(request, 'checkout.html', context)
+
+
+
+@require_POST
+@login_required
+def place_order(request):
+    user = request.user
+    cart_items = Cart.objects.filter(user=user)
+
+    if not cart_items.exists():
+        messages.error(request, "Your cart is empty.")
+        return redirect('view_cart')
+
+    total = sum(item.total_price() for item in cart_items)
+
+    order = Order.objects.create(
+        user=user,
+        total_amount=total,
+        address=user.profile.address,
+        city=user.profile.city,
+        phone=user.profile.phone
+    )
+
+    for cart_item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            item=cart_item.item,
+            quantity=cart_item.quantity,
+            price=cart_item.item.price
+        )
+
+    cart_items.delete()
+    messages.success(request, "Order placed successfully!")
+    return redirect('user_dashboard_view') 
+
+def admin_recent_orders(request):
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        new_status = request.POST.get('status')
+        order = Order.objects.get(id=order_id)
+        order.status = new_status
+        order.save()
+
+    # Fetch all orders
+    orders = Order.objects.select_related('user').prefetch_related('items__item').order_by('-created_at')
+    
+    # Filter orders by status
+    active_orders = orders.exclude(status__in=["Delivered", "Rejected"])  # Active orders
+    delivered_orders = orders.filter(status="Delivered")  # Delivered orders
+    rejected_orders = orders.filter(status="Rejected")  # Rejected orders
+
+    context = {
+        'active_orders': active_orders,
+        'delivered_orders': delivered_orders,
+        'rejected_orders': rejected_orders
+    }
+    
+    return render(request, 'admin_recent_orders.html', context)
+
+
+@login_required
+@user_required
+def user_orders(request):
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__item').order_by('-created_at')
+    return render(request, 'user_orders.html', {'orders': orders})
+
+
+
+def admin_feedback(request):
+    # Fetch all feedback
+    feedbacks = Feedback.objects.all().order_by('-submitted_at')  # Order by submission time, latest first
+    return render(request, 'admin_feedback.html', {'feedbacks': feedbacks})
+
+def order_detail(request, order_id):
+    order = Order.objects.get(id=order_id)
+    return render(request, 'order_detail.html', {'order': order})
+
+
+
+
+
+
 
 

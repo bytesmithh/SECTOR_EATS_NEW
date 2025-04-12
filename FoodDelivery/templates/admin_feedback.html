@@ -1,0 +1,62 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin - Feedback{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2 class="mb-4" style="font-family: 'Oswald', sans-serif;">Customer Feedback</h2>
+
+    {% if feedbacks %}
+      <table class="table table-bordered table-hover align-middle shadow-sm">
+        <thead class="table-dark">
+          <tr>
+            <th>Order ID</th>  <!-- Display Order ID -->
+            <th>Feedback ID</th>
+            <th>Mood</th>
+            <th>Delivery Speed</th>
+            <th>Etiquette Rating</th>
+            <th>Temperature</th>
+            <th>Issues</th>
+            <th>Feedback</th>
+            <th>Submitted At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for feedback in feedbacks %}
+            <tr>
+              <!-- Display Order ID -->
+              <td><a href="{% url 'order_detail' feedback.order.id %}">Order #{{ feedback.order.id }}</a>
+              </td>
+              <td>{{ feedback.id }}</td>
+              <td>
+                {% if feedback.mood == 1 %}Very Bad 😡
+                {% elif feedback.mood == 2 %}Okay 😐
+                {% elif feedback.mood == 3 %}Good 🙂
+                {% elif feedback.mood == 4 %}Excellent 🤩
+                {% endif %}
+              </td>
+              <td>{{ feedback.delivery_speed }}</td>
+              <td>{{ feedback.etiquette_rating }}</td>
+              <td>{{ feedback.temperature|title }}</td>
+              <td>
+                {% if feedback.issues %}
+                  <ul>
+                    {% for issue in feedback.issues %}
+                      <li>{{ issue|title }}</li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  No issues reported.
+                {% endif %}
+              </td>
+              <td>{{ feedback.feedback|default:"No additional feedback" }}</td>
+              <td>{{ feedback.submitted_at|date:"M d, Y H:i" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-center text-muted">No feedback available yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}

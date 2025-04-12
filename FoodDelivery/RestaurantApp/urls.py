@@ -21,10 +21,22 @@ urlpatterns=[
 
    path('menu/<int:item_id>/edit/', views.edit_menu_item_view, name='edit_menu_item'),
     path('menu/<int:item_id>/delete/', views.delete_menu_item_view, name='delete_menu_item'),
+    path('profile/', views.user_profile_view, name='user_profile_view'),
+    path('add-to-cart/<int:item_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.view_cart, name='view_cart'),
+    path('cart/update-quantity/<int:item_id>/', views.update_quantity_ajax, name='update_quantity_ajax'),
 
+    path('cart/empty/', views.empty_cart, name='empty_cart'),
 
+ 
+    path('checkout/', views.checkout_view, name='checkout'),
+    path('place-order/', views.place_order, name='place_order'),
 
+    path('admin/recent-orders/', views.admin_recent_orders, name='admin_recent_orders'),
+    path('my-orders/', views.user_orders, name='user_orders'),
+    path('admin/feedback/', views.admin_feedback, name='admin_feedback'),
 
+    path('order/<int:order_id>/', views.order_detail, name='order_detail'),
 
 
 

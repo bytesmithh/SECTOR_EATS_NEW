@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block style %}
+<style>
+    .profile-container {
+        max-width: 600px;
+        margin: 100px auto;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-family: 'Oswald', sans-serif;
+    }
+    .profile-heading {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .profile-item {
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+    .profile-label {
+        font-weight: bold;
+        color: #555;
+    }
+    .btn-orders {
+        display: block;
+        width: 100%;
+        margin-top: 30px;
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+    }
+    .btn-orders:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="profile-container text-start">
+    <div class="profile-heading text-center">Your Profile</div>
+    <div class="profile-item">
+        <span class="profile-label">Username:</span> {{ user.username }}
+    </div>
+    <div class="profile-item">
+        <span class="profile-label">Email:</span> {{ user.email }}
+    </div>
+    {% if user.phone %}
+    <div class="profile-item">
+        <span class="profile-label">Phone:</span> {{ user.phone }}
+    </div>
+    {% endif %}
+    {% if profile %}
+    <div class="profile-item">
+        <span class="profile-label">Phone:</span> {{ profile.phone }}
+    </div>
+    <div class="profile-item">
+        <span class="profile-label">Address:</span> {{ profile.address }}
+    </div>
+    <div class="profile-item">
+        <span class="profile-label">City:</span> {{ profile.city }}
+    </div>
+    <div class="profile-item">
+        <span class="profile-label">Role:</span> {{ profile.role|title }}
+    </div>
+    {% endif %}
+
+    <a href="{% url 'user_orders' %}" class="btn-orders text-center">Your Orders</a>
+</div>
+{% endblock %}
