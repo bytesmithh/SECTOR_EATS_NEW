@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% block title %}Your Cart{% endblock %}
+
+{% block style %}
+<style>
+    .cart-container {
+        max-width: 800px;
+        margin: 60px auto;
+        background: #fdfdfd;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
+
+    .cart-table th, .cart-table td {
+        border: 1px solid #e0e0e0;
+        padding: 14px;
+        text-align: left;
+        font-size: 1rem;
+    }
+
+    .cart-table th {
+        background-color: #f4f6f8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .bill-section {
+        border-top: 2px dashed #333;
+        padding-top: 20px;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    .bill-header {
+        text-align: center;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+    }
+
+    .bill-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #aaa;
+    }
+
+    .bill-item:last-child {
+        border-bottom: none;
+    }
+
+    .bill-total {
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-top: 15px;
+        text-align: right;
+        border-top: 2px solid #000;
+        padding-top: 10px;
+    }
+
+    .empty-cart {
+        text-align: center;
+        font-size: 1.2rem;
+        padding: 40px;
+    }
+
+    .quantity-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .qty-btn {
+        padding: 4px 10px;
+        background-color: purple;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    
+    .qty-count {
+        font-size: 1rem;
+        min-width: 24px;
+        text-align: center;
+    }
+    
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="cart-container">
+    {% if cart_items %}
+        <h2 class="text-center mb-4">🛒 Your Cart</h2>
+
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Price (₹)</th>
+                    <th>Quantity</th>
+                    <th>Total (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.item.name }}</td>
+                        <td>{{ item.item.price }}</td>
+                        <td>
+                            <div class="quantity-wrapper" data-id="{{ item.item.id }}">
+                                <button class="qty-btn decrease">-</button>
+                                <span class="qty-count">{{ item.quantity }}</span>
+                                <button class="qty-btn increase">+</button>
+                            </div>
+                        </td>
+                        <td>{{ item.total_price }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="bill-section">
+            <div class="bill-header">🧾 Bill Summary</div>
+            {% for item in cart_items %}
+                <div class="bill-item">
+                    <div>{{ item.item.name }} (x{{ item.quantity }})</div>
+                    <div>₹{{ item.total_price }}</div>
+                </div>
+            {% endfor %}
+            <div class="bill-total">
+                Total: ₹{{ total }}
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart">Your cart is empty.</div>
+    {% endif %}
+    
+    <form method="post" action="{% url 'empty_cart' %}" style="text-align: center; margin-top: 30px;" onsubmit="return confirm('Are you sure you want to empty your cart?');">
+        {% csrf_token %}
+        <button type="submit" style="padding: 10px 20px; background-color: crimson; color: white; border: none; border-radius: 8px;">
+            🗑️ Empty Cart
+        </button>
+    </form>
+</div>
+
+<script>
+document.querySelectorAll('.quantity-wrapper').forEach(wrapper => {
+    const itemId = wrapper.getAttribute('data-id');
+    const countSpan = wrapper.querySelector('.qty-count');
+    const decreaseBtn = wrapper.querySelector('.decrease');
+    const increaseBtn = wrapper.querySelector('.increase');
+
+    function updateQuantity(change) {
+        fetch(`/cart/update-quantity/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({ change: change })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                countSpan.textContent = data.new_quantity;
+                location.reload();
+            }
+        });
+    }
+
+    increaseBtn.addEventListener('click', () => updateQuantity(1));
+    decreaseBtn.addEventListener('click', () => updateQuantity(-1));
+});
+</script>
+{% endblock %}

@@ -9,6 +9,7 @@
 
     <title>Sector Eats | {% block title %}{% endblock %}</title>
 
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap');
         html, body {
@@ -186,7 +187,25 @@
     {% endblock %}
 </head>
 <body>
+    
+
     {% load static %}
+
+    {% if messages %}
+<div class="toast-container position-fixed top-0 start-0 p-3" style="z-index: 2000; margin-top: 80px;">
+    {% for message in messages %}
+    <div class="toast align-items-center text-bg-{{ message.tags }} border-0 show" role="alert">
+        <div class="d-flex">
+            <div class="toast-body text-start">
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 
     <nav class="navbar navbar-expand-lg p-3" >
         <div class="container-fluid">
@@ -209,8 +228,12 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'chatbot_page' %}">Help and Support</a></li>
                 </ul>
             </div>
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center gap-2">
                 {% if user.is_authenticated %}
+                    <a href="{% url 'view_cart' %}" class="btn position-relative btn-outline-dark" style="font-family: 'Oswald', sans-serif;">
+                        🛒 Your Cart
+                    </a>
+                    <a href="{% url 'user_profile_view' %}" class="btn btn-outline-dark" style="font-family: 'Oswald', sans-serif;">Profile</a>
                     <form method="POST" action="{% url 'logout' %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-custom" style="font-family: 'Oswald', sans-serif;">Logout</button>
@@ -219,6 +242,8 @@
                     <button class="btn btn-custom" data-bs-toggle="offcanvas" data-bs-target="#loginCanvas" style="font-family: 'Oswald', sans-serif;">Login</button>
                 {% endif %}
             </div>
+            
+            
             
         </div>
     </nav>
@@ -344,6 +369,17 @@
           });
         });
       </script>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toastElements = document.querySelectorAll('.toast');
+            toastElements.forEach(toastEl => {
+                const bsToast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                bsToast.show();
+            });
+        });
+    </script>
+    
       
 
     {% block script %}

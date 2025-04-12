@@ -9,8 +9,10 @@ from django.contrib import messages
 from django.contrib.auth import login,authenticate,logout
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+import json
 
-from .decorators import admin_required
+from .decorators import admin_required,user_required
 
 
 
@@ -19,10 +21,8 @@ from .decorators import admin_required
 from .forms import MenuItemForm
 
 
-from .models import Profile,Restaurant,MenuItem
+from .models import Profile,Restaurant,MenuItem,Cart
 from .forms import RestaurantForm
-
-from .models import Profile  
 
 
 
@@ -138,13 +138,11 @@ def ai_chat(request):
     if request.method == 'POST':
         user_input = request.POST.get('message', '')
 
-        allowed_keywords = ['order', 'menu', 'food', 'delivery', 'track', 'cancel', 'status', 'item']
+        allowed_keywords = ['order', 'menu', 'food', 'delivery', 'track', 'cancel', 'status', 'item','burger','pizza','sandwich']
         if not any(word in user_input for word in allowed_keywords):
             return JsonResponse({
                 'reply': '❌ I can only help with food orders, menus, or delivery queries. Please keep your questions related.'
             })
-
-
 
         if not user_input:
             return JsonResponse({"reply": "Please enter a message."})
@@ -186,6 +184,7 @@ def chatbot_page(request):
     return render(request, "chatbot.html")
 
 @login_required
+@user_required
 def user_dashboard_view(request):
     restaurants = Restaurant.objects.filter(is_active=True)
     return render(request, "user_dashboard.html", {'restaurants': restaurants})
@@ -252,11 +251,6 @@ def edit_restaurant(request, restaurant_id):
     return render(request, 'edit_restaurant.html', {'form': form})
 
 
-
-
-
-
-
 @admin_required
 @login_required
 def add_menu_item(request, restaurant_id):
@@ -309,5 +303,76 @@ def delete_menu_item_view(request, item_id):
     restaurant_id = item.restaurant.id
     item.delete()
     return redirect('add_menu_item', restaurant_id=restaurant_id)
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Profile
+
+@login_required
+@user_required  
+def user_profile_view(request):
+    profile = Profile.objects.get(user=request.user)
+    return render(request, 'user_profile.html', {'profile': profile})
+
+from django.http import JsonResponse
+
+@login_required
+def add_to_cart(request, item_id):
+    item = get_object_or_404(MenuItem, id=item_id)
+
+    # Get quantity from GET parameters (default to 1 if not provided)
+    try:
+        qty = int(request.GET.get('qty', 1))
+        if qty < 1:
+            qty = 1
+    except ValueError:
+        qty = 1
+
+    cart_item, created = Cart.objects.get_or_create(user=request.user, item=item)
+    
+    if created:
+        cart_item.quantity = qty
+    else:
+        cart_item.quantity += qty
+
+    cart_item.save()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'message': f'Added {qty} item(s) to cart'})
+    
+    return redirect('view_cart')
+
+
+
+@login_required
+def view_cart(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    total = sum(item.total_price() for item in cart_items)
+    return render(request, 'view_cart.html', {'cart_items': cart_items, 'total': total})
+
+
+
+@login_required
+@require_POST
+def empty_cart(request):
+    Cart.objects.filter(user=request.user).delete()
+    return redirect('view_cart')
+
+@csrf_exempt
+@login_required
+def update_quantity_ajax(request, item_id):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        cart_item = get_object_or_404(Cart, user=request.user, item_id=item_id)
+        data = json.loads(request.body)
+        change = data.get('change', 0)
+        cart_item.quantity = max(1, cart_item.quantity + int(change))
+        cart_item.save()
+        return JsonResponse({'success': True, 'new_quantity': cart_item.quantity})
+    return JsonResponse({'success': False}, status=400)
+
+
+
+
 
 
