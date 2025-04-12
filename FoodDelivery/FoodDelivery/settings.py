@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'RestaurantApp',
-    'widget_tweaks'
+    'widget_tweaks',
+    'FoodReview'
 ]
 
 MIDDLEWARE = [
