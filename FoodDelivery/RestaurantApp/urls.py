@@ -33,6 +33,8 @@ urlpatterns=[
     path('place-order/', views.place_order, name='place_order'),
 
     path('admin/recent-orders/', views.admin_recent_orders, name='admin_recent_orders'),
+    path('my-orders/', views.user_orders, name='user_orders'),
+
 
 
 ]

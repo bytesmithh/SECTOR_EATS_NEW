@@ -6,9 +6,9 @@
   <div class="container mt-4">
     <h2 class="mb-4" style="font-family: 'Oswald', sans-serif;">Recent Orders</h2>
 
-    {% if orders %}
+    {% if active_orders %}
       <div class="row row-cols-1 row-cols-md-2 g-4">
-        {% for order in orders %}
+        {% for order in active_orders %}
           <div class="col">
             <div class="card shadow-sm border-0 h-100 order-card-hover">
               <div class="card-body">
@@ -65,8 +65,84 @@
       </div>
     {% else %}
       <div class="text-center">
-        <p class="text-muted">No orders found.</p>
+        <p class="text-muted">No active orders found.</p>
       </div>
+    {% endif %}
+
+    <hr>
+
+    {% if delivered_orders %}
+      <h3 class="mt-4">Order History (Delivered Orders)</h3>
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle shadow-sm">
+          <thead class="table-dark">
+            <tr>
+              <th>Order ID</th>
+              <th>User</th>
+              <th>Total Amount</th>
+              <th>Items</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in delivered_orders %}
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.user.get_username }}</td>
+                <td>₹{{ order.total_amount }}</td>
+                <td>
+                  {% for item in order.items.all %}
+                    <div class="p-2 mb-2 bg-light border rounded shadow-sm">
+                      <strong>{{ item.item.name }}</strong> - x{{ item.quantity }}
+                    </div>
+                  {% endfor %}
+                </td>
+                <td><span class="badge bg-success">{{ order.status }}</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-center text-muted">No orders have been delivered yet.</p>
+    {% endif %}
+
+    <hr>
+
+    {% if rejected_orders %}
+      <h3 class="mt-4">Order History (Rejected Orders)</h3>
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle shadow-sm">
+          <thead class="table-dark">
+            <tr>
+              <th>Order ID</th>
+              <th>User</th>
+              <th>Total Amount</th>
+              <th>Items</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in rejected_orders %}
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.user.get_username }}</td>
+                <td>₹{{ order.total_amount }}</td>
+                <td>
+                  {% for item in order.items.all %}
+                    <div class="p-2 mb-2 bg-light border rounded shadow-sm">
+                      <strong>{{ item.item.name }}</strong> - x{{ item.quantity }}
+                    </div>
+                  {% endfor %}
+                </td>
+                <td><span class="badge bg-danger">{{ order.status }}</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-center text-muted">No orders have been rejected yet.</p>
     {% endif %}
   </div>
 

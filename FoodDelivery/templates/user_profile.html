@@ -28,6 +28,25 @@
         font-weight: bold;
         color: #555;
     }
+    .btn-orders {
+        display: block;
+        width: 100%;
+        margin-top: 30px;
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+    }
+    .btn-orders:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
 </style>
 {% endblock %}
 
@@ -58,7 +77,8 @@
     <div class="profile-item">
         <span class="profile-label">Role:</span> {{ profile.role|title }}
     </div>
-{% endif %}
+    {% endif %}
 
+    <a href="{% url 'user_orders' %}" class="btn-orders text-center">Your Orders</a>
 </div>
 {% endblock %}

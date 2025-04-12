@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Your Orders{% endblock %}
+
+{% block style %}
+<style>
+    .orders-container {
+        max-width: 1000px;
+        margin: 100px auto 60px auto;
+        font-family: 'Oswald', sans-serif;
+        position: relative;
+    }
+
+    .order-card {
+        position: relative;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+
+    .order-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .order-header {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #343a40;
+    }
+
+    .order-info {
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+        color: #555;
+    }
+
+    .badge-status {
+        font-size: 0.95rem;
+        padding: 5px 10px;
+        border-radius: 8px;
+    }
+
+    .item-box {
+        background-color: #fff;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .item-name {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .item-details {
+        font-size: 0.95rem;
+        color: #777;
+    }
+
+    .rejected-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(220, 53, 69, 0.85); /* red with opacity */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: bold;
+        border-radius: 12px;
+        z-index: 10;
+        text-align: center;
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="orders-container">
+    <h2 class="text-center mb-4">Your Orders</h2>
+
+    {% for order in orders %}
+        <div class="order-card">
+            {% if order.status == 'Rejected' %}
+                <div class="rejected-overlay">
+                    Items out of stock. Order Rejected.
+                </div>
+            {% endif %}
+
+            <div class="order-header">Order #{{ order.id }} - {{ order.created_at|date:"M d, Y H:i" }}</div>
+            
+            <div class="order-info">Total Amount: <strong>₹{{ order.total_amount }}</strong></div>
+            <div class="order-info">Status:
+                <span class="badge-status 
+                    {% if order.status == 'Delivered' %}bg-success text-white
+                    {% elif order.status == 'Out for Delivery' %}bg-warning text-dark
+                    {% elif order.status == 'Accepted' %}bg-info text-dark
+                    {% elif order.status == 'Rejected' %}bg-danger
+                    {% else %}bg-secondary text-white
+                    {% endif %}
+                ">
+                    {{ order.status }}
+                </span>
+            </div>
+            <div class="order-info">Delivery Address: {{ order.address }}, {{ order.city }}</div>
+            <div class="order-info">Phone: {{ order.phone }}</div>
+
+            <hr>
+            <div class="order-info mb-2"><strong>Items:</strong></div>
+            {% for item in order.items.all %}
+                <div class="item-box d-flex justify-content-between">
+                    <div>
+                        <div class="item-name">{{ item.item.name }}</div>
+                        <div class="item-details">Qty: {{ item.quantity }}</div>
+                    </div>
+                    <div class="fw-semibold text-success">₹{{ item.price|floatformat:2 }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% empty %}
+        <p class="text-center text-muted">You haven't placed any orders yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

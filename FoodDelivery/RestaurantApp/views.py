@@ -436,23 +436,36 @@ def place_order(request):
     messages.success(request, "Order placed successfully!")
     return redirect('user_dashboard_view') 
 
-@login_required
-@admin_required
 def admin_recent_orders(request):
-    orders = Order.objects.all().order_by('-created_at')  # Fetch recent orders
-
     if request.method == 'POST':
         order_id = request.POST.get('order_id')
-        status = request.POST.get('status')
+        new_status = request.POST.get('status')
+        order = Order.objects.get(id=order_id)
+        order.status = new_status
+        order.save()
 
-        if order_id and status:
-            order = get_object_or_404(Order, id=order_id)
-            order.status = status  # Update the status of the order
-            order.save()
-            messages.success(request, f'Order status updated to {status}!')
-            return redirect('admin_recent_orders')
+    # Fetch all orders
+    orders = Order.objects.select_related('user').prefetch_related('items__item').order_by('-created_at')
+    
+    # Filter orders by status
+    active_orders = orders.exclude(status__in=["Delivered", "Rejected"])  # Active orders
+    delivered_orders = orders.filter(status="Delivered")  # Delivered orders
+    rejected_orders = orders.filter(status="Rejected")  # Rejected orders
 
-    return render(request, 'admin_recent_orders.html', {'orders': orders})
+    context = {
+        'active_orders': active_orders,
+        'delivered_orders': delivered_orders,
+        'rejected_orders': rejected_orders
+    }
+    
+    return render(request, 'admin_recent_orders.html', context)
+
+
+@login_required
+@user_required
+def user_orders(request):
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__item').order_by('-created_at')
+    return render(request, 'user_orders.html', {'orders': orders})
 
 
 
