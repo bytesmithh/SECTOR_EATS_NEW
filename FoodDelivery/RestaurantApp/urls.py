@@ -27,15 +27,12 @@ urlpatterns=[
     path('cart/update-quantity/<int:item_id>/', views.update_quantity_ajax, name='update_quantity_ajax'),
 
     path('cart/empty/', views.empty_cart, name='empty_cart'),
-    
 
+ 
+    path('checkout/', views.checkout_view, name='checkout'),
+    path('place-order/', views.place_order, name='place_order'),
 
-
-
-
-
-
-
+    path('admin/recent-orders/', views.admin_recent_orders, name='admin_recent_orders'),
 
 
 ]

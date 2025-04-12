@@ -21,7 +21,7 @@ from .decorators import admin_required,user_required
 from .forms import MenuItemForm
 
 
-from .models import Profile,Restaurant,MenuItem,Cart
+from .models import Profile,Restaurant,MenuItem,Cart, Order, OrderItem
 from .forms import RestaurantForm
 
 
@@ -186,8 +186,17 @@ def chatbot_page(request):
 @login_required
 @user_required
 def user_dashboard_view(request):
-    restaurants = Restaurant.objects.filter(is_active=True)
+    user_profile = request.user.profile  # Assuming Profile has OneToOne with User
+    user_city = user_profile.city.lower()
+
+    restaurants = Restaurant.objects.filter(
+        is_active=True,
+        location__icontains=user_city
+    )
+
     return render(request, "user_dashboard.html", {'restaurants': restaurants})
+
+
 
 
 
@@ -305,9 +314,7 @@ def delete_menu_item_view(request, item_id):
     return redirect('add_menu_item', restaurant_id=restaurant_id)
 
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import Profile
+
 
 @login_required
 @user_required  
@@ -315,7 +322,7 @@ def user_profile_view(request):
     profile = Profile.objects.get(user=request.user)
     return render(request, 'user_profile.html', {'profile': profile})
 
-from django.http import JsonResponse
+
 
 @login_required
 def add_to_cart(request, item_id):
@@ -370,6 +377,84 @@ def update_quantity_ajax(request, item_id):
         cart_item.save()
         return JsonResponse({'success': True, 'new_quantity': cart_item.quantity})
     return JsonResponse({'success': False}, status=400)
+
+@login_required
+def checkout_view(request):
+    user = request.user
+
+    cart_items = Cart.objects.filter(user=user)
+    total = sum(item.total_price() for item in cart_items)
+
+
+    # Assuming user has a profile with name, email, etc.
+    customer = {
+        'name': user.get_full_name(),
+        'email': user.email,
+        'phone': user.profile.phone,
+        'address': user.profile.address,
+        'city': user.profile.city,
+    }
+
+    context = {
+        'customer': customer,
+        'cart_items': cart_items,
+        'total': total,
+    }
+    return render(request, 'checkout.html', context)
+
+
+
+@require_POST
+@login_required
+def place_order(request):
+    user = request.user
+    cart_items = Cart.objects.filter(user=user)
+
+    if not cart_items.exists():
+        messages.error(request, "Your cart is empty.")
+        return redirect('view_cart')
+
+    total = sum(item.total_price() for item in cart_items)
+
+    order = Order.objects.create(
+        user=user,
+        total_amount=total,
+        address=user.profile.address,
+        city=user.profile.city,
+        phone=user.profile.phone
+    )
+
+    for cart_item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            item=cart_item.item,
+            quantity=cart_item.quantity,
+            price=cart_item.item.price
+        )
+
+    cart_items.delete()
+    messages.success(request, "Order placed successfully!")
+    return redirect('user_dashboard_view') 
+
+@login_required
+@admin_required
+def admin_recent_orders(request):
+    orders = Order.objects.all().order_by('-created_at')  # Fetch recent orders
+
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        status = request.POST.get('status')
+
+        if order_id and status:
+            order = get_object_or_404(Order, id=order_id)
+            order.status = status  # Update the status of the order
+            order.save()
+            messages.success(request, f'Order status updated to {status}!')
+            return redirect('admin_recent_orders')
+
+    return render(request, 'admin_recent_orders.html', {'orders': orders})
+
+
 
 
 

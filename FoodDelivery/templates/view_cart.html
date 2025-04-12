@@ -11,6 +11,7 @@
         border-radius: 16px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+       
     }
 
     .cart-table {
@@ -98,6 +99,7 @@
     }
     
 </style>
+
 {% endblock %}
 
 {% block main %}
@@ -152,6 +154,28 @@
         {% csrf_token %}
         <button type="submit" style="padding: 10px 20px; background-color: crimson; color: white; border: none; border-radius: 8px;">
             🗑️ Empty Cart
+        </button>
+    </form>
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+    <form id="checkout-form" action="{% url 'checkout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" id="checkout-btn" style="
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 128, 0, 0.3);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom:4vh;
+        " onmouseover="this.style.backgroundColor='#218838'"
+           onmouseout="this.style.backgroundColor='#28a745'"  onclick="return confirm('Are you aure you want to checkout')">
+            ✅ Proceed to Checkout
         </button>
     </form>
 </div>

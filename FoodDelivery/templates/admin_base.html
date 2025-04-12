@@ -176,10 +176,10 @@
       <h2 style="font-family: 'Oswald', sans-serif !important; font-size: 2.2rem; color: inherit;">Sector Eats</h2>
     </a>
     
-    <a href="#">Recent Orders</a>
+    <a href="{% url 'admin_recent_orders' %}">Recent Orders</a>
     <a href="{% url 'add_restaurant' %}">Add Restaurant</a>
     
-<a href="{% url 'list_restaurants' %}">Manage Restaurants</a>
+<a href="{% url 'list_restaurants' %}" >Manage Restaurants</a>
 
 
 
@@ -188,7 +188,7 @@
     <a href="{% url 'logout' %}">Logout</a>
   </div>
 
-  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
     {% if messages %}
       {% for message in messages %}
         <div class="toast align-items-center text-white bg-{{ message.tags }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
