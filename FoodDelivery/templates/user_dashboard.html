@@ -120,14 +120,16 @@
     text-align: center !important; /* <-- Add this line */
 
 }
-.mini-card-body h5 {
+.mini-card-body h3 {
     font-family: 'Oswald', sans-serif;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
 }
 .mini-card-body p {
-    font-size: 0.9rem;
+    font-size: 0.93rem;
     margin: 0.2rem 0;
+    text-transform: capitalize;
+
 }
 .mini-card-body a {
     font-size: 0.85rem;
@@ -143,6 +145,7 @@
 .mini-card-body h3,
 .mini-card-body p {
     text-align: center;
+
 }
 
 .horizontal-scroll {
@@ -268,7 +271,7 @@
                     <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
                     <div class="mini-card-body">
                         <h3 style="text-transform: uppercase;">{{ restaurant.name }}</h3>
-                        <p><strong>📍</strong> {{ restaurant.location }}</p>
+                        <p ><strong>📍</strong> {{ restaurant.location }}</p>
                         <p><strong>🍽️</strong> {{ restaurant.cuisine_type }}</p>
                         {% if restaurant.delivery_available %}
                         <a href="{% url 'restaurant_menu' restaurant.id %}">View Menu</a>
