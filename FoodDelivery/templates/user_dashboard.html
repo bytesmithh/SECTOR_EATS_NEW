@@ -157,13 +157,77 @@
 .horizontal-scroll::-webkit-scrollbar {
     display: none; /* Chrome, Safari */
 }
+.mini-card {
+    min-width: 280px;
+}
+
+.search-container {
+    position: absolute;
+    top: 18vh;
+    left: 20px;
+    z-index: 999;
+    padding-left: 48px;
+}
+
+#search-bar {
+    width: 0;
+    opacity: 0;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 50px;
+    outline: none;
+    transition: width 0.4s ease, opacity 0.4s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.search-container.active #search-bar {
+    width: 300px;
+    opacity: 1;
+}
+
+.search-toggle {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    background-color: purple;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.search-toggle:hover {
+    background-color: #5e1a82;
+}
+
+
 
 </style>
 {% endblock %}
 
 {% block main %}
 <div class="container mt-5" style="margin-top: 15vh !important;">
+
+    <div class="search-container">
+        <div class="search-toggle" id="search-toggle">
+            🔍
+        </div>
+        <input type="text" id="search-bar" placeholder="Search by name or cuisine" />
+    </div>
+    
     <h1 class="mb-5" style="font-family: 'Oswald', sans-serif; letter-spacing: 3px;">All Restaurants</h1>
+
+    
+    
+    
+    
 
     {% if restaurants %}
         {# -------- First Restaurant (Full Width) -------- #}
@@ -221,4 +285,58 @@
         <p>No restaurants available at the moment.</p>
     {% endif %}
 </div>
+
+<script>
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search-bar');
+        
+            function filterRestaurants() {
+                const query = searchInput.value.toLowerCase();
+        
+                // Full width card
+                const fullCard = document.querySelector('.restaurant-card');
+                const fullName = fullCard?.querySelector('h2')?.textContent.toLowerCase();
+                const fullCuisine = fullCard?.querySelector('p:nth-child(3)')?.textContent.toLowerCase();
+        
+                if (fullCard) {
+                    const matchFull = fullName.includes(query) || fullCuisine.includes(query);
+                    fullCard.style.display = matchFull ? 'flex' : 'none';
+                }
+        
+                // Mini cards
+                document.querySelectorAll('.mini-card').forEach(card => {
+                    const name = card.querySelector('h3')?.textContent.toLowerCase();
+                    const cuisine = card.querySelector('p:nth-of-type(2)')?.textContent.toLowerCase();
+                    const match = name.includes(query) || cuisine.includes(query);
+                    card.style.display = match ? 'block' : 'none';
+                });
+            }
+        
+            searchInput.addEventListener('input', filterRestaurants);
+        });
+        </script>
+
+        <script>
+            const toggle = document.getElementById('search-toggle');
+            const container = document.querySelector('.search-container');
+            const input = document.getElementById('search-bar');
+        
+            toggle.addEventListener('click', () => {
+                container.classList.toggle('active');
+                if (container.classList.contains('active')) {
+                    input.focus();
+                }
+            });
+        
+            // Optional: Close search if clicked outside
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target)) {
+                    container.classList.remove('active');
+                }
+            });
+        </script>
+        
+        
+    
 {% endblock %}

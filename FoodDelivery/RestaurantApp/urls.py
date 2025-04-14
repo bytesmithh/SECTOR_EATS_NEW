@@ -32,6 +32,8 @@ urlpatterns=[
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),
     path('check-phone/', views.check_phone, name='check_phone'),
     path('phone-login/', views.phone_login_view, name='phone_login'),
+    
+
 
 
 ]
