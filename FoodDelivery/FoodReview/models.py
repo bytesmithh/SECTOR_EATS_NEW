@@ -28,11 +28,11 @@ class Feedback(models.Model):
     food_photo = models.ImageField(upload_to='feedback_photos/', null=True, blank=True)
     temperature = models.CharField(max_length=10, choices=TEMPERATURE_CHOICES)
     feedback = models.TextField(blank=True)
-    issues = models.JSONField(default=list, blank=True)  # stores list of issues
+    issues = models.JSONField(default=list, blank=True)  
 
     submitted_at = models.DateTimeField(auto_now_add=True)
 
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='feedbacks')  # Link feedback to an order
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='feedbacks') 
 
 
     def __str__(self):
