@@ -15,9 +15,19 @@ class Profile(models.Model):
 
 
 class Restaurant(models.Model):
+    CUISINE_CHOICES = [
+        ('Indian', 'Indian'),
+        ('Chinese', 'Chinese'),
+        ('Italian', 'Italian'),
+        ('Mexican', 'Mexican'),
+        ('Thai', 'Thai'),
+        ('Japanese', 'Japanese'),
+        ('Multiple', 'Multiple'),
+    ]
+
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=255)
-    cuisine_type = models.CharField(max_length=100)
+    cuisine_type = models.CharField(max_length=100, choices=CUISINE_CHOICES)
     contact = models.CharField(max_length=20)
     email = models.EmailField()
     image = models.ImageField(upload_to='restaurant_images/', null=True, blank=True)
@@ -25,12 +35,11 @@ class Restaurant(models.Model):
     opening_time = models.TimeField()
     closing_time = models.TimeField()
     delivery_available = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    admin = models.ForeignKey(User, on_delete=models.CASCADE)  
+    is_approved = models.BooleanField(default=False)
+    admin = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
-
 
 
 class MenuItem(models.Model):
