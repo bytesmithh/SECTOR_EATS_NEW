@@ -187,7 +187,7 @@ def user_dashboard_view(request):
     user_city = user_profile.city.lower()
 
     restaurants = Restaurant.objects.filter(
-        is_active=True,
+        is_approved=True,
         location__icontains=user_city
     )
 
