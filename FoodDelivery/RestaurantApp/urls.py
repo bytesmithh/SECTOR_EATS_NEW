@@ -15,9 +15,9 @@ urlpatterns=[
     path('admindashboard/edit_restaurant/<int:restaurant_id>/', views.edit_restaurant, name='edit_restaurant'),
     path('admindashboard/delete_restaurant/<int:restaurant_id>/', views.delete_restaurant, name='delete_restaurant'),
     path('user_dashboard/',views.user_dashboard_view,name="user_dashboard_view"),
-   path('admin/restaurant/<int:restaurant_id>/add-menu/', views.add_menu_item, name='add_menu_item'),
-   path('restaurant/<int:restaurant_id>/menu/', views.restaurant_menu, name='restaurant_menu'),
-   path('menu/<int:item_id>/edit/', views.edit_menu_item_view, name='edit_menu_item'),
+    path('admin/restaurant/<int:restaurant_id>/add-menu/', views.add_menu_item, name='add_menu_item'),
+    path('restaurant/<int:restaurant_id>/menu/', views.restaurant_menu, name='restaurant_menu'),
+    path('menu/<int:item_id>/edit/', views.edit_menu_item_view, name='edit_menu_item'),
     path('menu/<int:item_id>/delete/', views.delete_menu_item_view, name='delete_menu_item'),
     path('profile/', views.user_profile_view, name='user_profile_view'),
     path('add-to-cart/<int:item_id>/', views.add_to_cart, name='add_to_cart'),
@@ -32,6 +32,11 @@ urlpatterns=[
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),
     path('check-phone/', views.check_phone, name='check_phone'),
     path('phone-login/', views.phone_login_view, name='phone_login'),
+    path('other-restaurants/', views.api_restaurant_view, name='other_restaurants'),
+    path('error/', views.error_view, name='error'),
+    path('place_order/', views.place_order_api, name='place_order'),
+    path("admin/contact-messages/", views.contact_messages, name="contact_messages"),
+
     
 
 

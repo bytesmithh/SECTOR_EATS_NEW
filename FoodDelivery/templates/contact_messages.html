@@ -1,0 +1,66 @@
+{% extends "admin_base.html" %}
+
+{% block style %}
+<style>
+    .main-content {
+        margin-left: 260px; /* Adjust based on your sidebar width */
+        min-height: 100vh;
+        padding: 40px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        background-color: #f9f9f9;
+    }
+
+    .content-wrapper {
+        width: 100%;
+        max-width: 800px;
+    }
+
+    .contact-card {
+        border-left: 5px solid #007bff;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .contact-card:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="main-content">
+    <div class="content-wrapper">
+        <h2>Messages</h2>
+
+        {% if contacts %}
+            {% for c in contacts %}
+                <div class="contact-card">
+                    <h5 class="mb-2">
+                        {{ c.subject }}
+                        <small class="text-muted float-right">{{ c.created_at }}</small>
+                    </h5>
+                    <p class="mb-1"><strong>Name:</strong> {{ c.name }}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{ c.email }}</p>
+                    <p class="mb-0">{{ c.message }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center">No contact submissions found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -209,6 +209,24 @@
 .search-toggle:hover {
     background-color: #5e1a82;
 }
+.explore-more-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #a020f0, #6a0dad);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(160, 32, 240, 0.2);
+    margin-bottom: 2rem;
+}
+.explore-more-btn:hover {
+    background: linear-gradient(135deg, #6a0dad, #a020f0);
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(160, 32, 240, 0.3);
+}
 
 
 
@@ -287,6 +305,9 @@
     {% else %}
         <p>No restaurants available at the moment.</p>
     {% endif %}
+
+    <a href="{% url 'other_restaurants' %}" class="explore-more-btn">🍽️ Explore More Restaurants</a>
+
 </div>
 
 <script>

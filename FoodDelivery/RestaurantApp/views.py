@@ -19,9 +19,7 @@ from .forms import MenuItemForm
 from .models import Profile,Restaurant,MenuItem,Cart, Order, OrderItem
 from .forms import RestaurantForm
 
-
-
-
+FLASK_BASE = "http://127.0.0.1:5000/api"
 
 # Create your views here.
 def home_view(request):
@@ -69,7 +67,7 @@ def signup_view(request):
             phone=phone,
             address=address,
             city=city,
-            role=role
+            role='customer' 
         )
 
         messages.success(request, "Account created successfully. Please log in.")
@@ -81,12 +79,16 @@ def signup_view(request):
 
 
 
+import requests
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .models import Profile, User
+
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-
-        print("Login attempt with:", email, password)
 
         try:
             user_obj = User.objects.get(email=email)
@@ -99,6 +101,24 @@ def login_view(request):
         if user is not None:
             login(request, user)
             profile = Profile.objects.get(user=user)
+
+            # Sync user to Flask
+            user_payload = {
+                "id": user.id,
+                "name": user.first_name or f"User {user.id}",
+                "email": user.email,
+                "address": profile.address,
+                "city": profile.city,
+                "mobile": profile.phone,
+                "role": profile.role,
+                "password": "default"  
+            }
+
+            try:
+                flask_response = requests.post(f"{FLASK_BASE}/create_user", json=user_payload)
+                print("Flask Sync Response:", flask_response.status_code, flask_response.text)
+            except requests.exceptions.RequestException as e:
+                print("Error sending user to Flask:", str(e))
 
             messages.success(request, f"Welcome, {user.username}!")
 
@@ -114,6 +134,7 @@ def login_view(request):
 
 
 
+
 def about_us_view(request):
     return render(request,"about_us.html")
 
@@ -123,7 +144,6 @@ def logout_view(request):
 
 
 
-#logic for Ai model integration
 
 HUGGINGFACE_API_KEY = "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"  
 
@@ -183,7 +203,7 @@ def chatbot_page(request):
 @login_required
 @user_required
 def user_dashboard_view(request):
-    user_profile = request.user.profile  # Assuming Profile has OneToOne with User
+    user_profile = request.user.profile
     user_city = user_profile.city.lower()
 
     restaurants = Restaurant.objects.filter(
@@ -207,7 +227,7 @@ def admin_dashboard(request):
 def add_restaurant(request):
     if request.method == 'POST':
         form = RestaurantForm(request.POST, request.FILES)
-        print("Form Submitted")  # debug
+        print("Form Submitted")
 
         if form.is_valid():
             restaurant = form.save(commit=False)
@@ -216,7 +236,7 @@ def add_restaurant(request):
             messages.success(request, 'Restaurant added successfully!')
             return redirect('admin_dashboard')
         else:
-            print("Form errors:", form.errors)  # debug
+            print("Form errors:", form.errors)
     else:
         form = RestaurantForm()
 
@@ -227,7 +247,7 @@ def add_restaurant(request):
 @admin_required
 @login_required
 def list_restaurants(request):
-    restaurants = Restaurant.objects.filter(admin=request.user)  # 👈 Only owned restaurants
+    restaurants = Restaurant.objects.filter(admin=request.user)
     return render(request, 'list_restaurants.html', {'restaurants': restaurants})
 
 
@@ -269,7 +289,7 @@ def add_menu_item(request, restaurant_id):
             menu_item.restaurant = restaurant
             menu_item.save()
             messages.success(request, 'Menu item added successfully!')
-            return redirect('list_restaurants')  # Or redirect to a restaurant detail page if you have it
+            return redirect('list_restaurants')
     else:
         form = MenuItemForm()
     
@@ -324,8 +344,6 @@ def user_profile_view(request):
 @login_required
 def add_to_cart(request, item_id):
     item = get_object_or_404(MenuItem, id=item_id)
-
-    # Get quantity from GET parameters (default to 1 if not provided)
     try:
         qty = int(request.GET.get('qty', 1))
         if qty < 1:
@@ -381,9 +399,6 @@ def checkout_view(request):
 
     cart_items = Cart.objects.filter(user=user)
     total = sum(item.total_price() for item in cart_items)
-
-
-    # Assuming user has a profile with name, email, etc.
     customer = {
         'name': user.get_full_name(),
         'email': user.email,
@@ -441,14 +456,10 @@ def admin_recent_orders(request):
         order.status = new_status
         order.save()
 
-    # Fetch all orders
     orders = Order.objects.select_related('user').prefetch_related('items__item').order_by('-created_at')
-    
-    # Filter orders by status
-    active_orders = orders.exclude(status__in=["Delivered", "Rejected"])  # Active orders
-    delivered_orders = orders.filter(status="Delivered")  # Delivered orders
-    rejected_orders = orders.filter(status="Rejected")  # Rejected orders
-
+    active_orders = orders.exclude(status__in=["Delivered", "Rejected"])
+    delivered_orders = orders.filter(status="Delivered")  
+    rejected_orders = orders.filter(status="Rejected")
     context = {
         'active_orders': active_orders,
         'delivered_orders': delivered_orders,
@@ -467,8 +478,7 @@ def user_orders(request):
 
 
 def admin_feedback(request):
-    # Fetch all feedback
-    feedbacks = Feedback.objects.all().order_by('-submitted_at')  # Order by submission time, latest first
+    feedbacks = Feedback.objects.all().order_by('-submitted_at')  
     return render(request, 'admin_feedback.html', {'feedbacks': feedbacks})
 
 def order_detail(request, order_id):
@@ -479,26 +489,26 @@ def order_detail(request, order_id):
 def check_phone(request):
     phone = request.GET.get('phone')
     if phone:
-        # Check if the phone exists in the database
-        user_exists = Profile.objects.filter(phone=phone).exists()  # Using Profile model
+
+        user_exists = Profile.objects.filter(phone=phone).exists()
         return JsonResponse({'exists': user_exists})
     return JsonResponse({'exists': False})
 
 
 def phone_login_view(request):
     if request.method == "POST":
-        data = json.loads(request.body)  # This will load the data sent in the fetch request
+        data = json.loads(request.body) 
         phone = data.get('phone')
         password = data.get('password')
 
         try:
             profile = Profile.objects.get(phone=phone)
-            user = profile.user  # assuming OneToOneField to User
+            user = profile.user 
             authenticated_user = authenticate(request, username=user.username, password=password)
 
             if authenticated_user:
                 login(request, authenticated_user)
-                return JsonResponse({"success": True, "redirect_url": '/'})  # You can specify a URL here to redirect after login
+                return JsonResponse({"success": True, "redirect_url": '/'})
             else:
                 return JsonResponse({"success": False, "message": "Invalid password."})
         except Profile.DoesNotExist:
@@ -507,6 +517,142 @@ def phone_login_view(request):
 
 
 
+FLASK_BASE = "http://127.0.0.1:5000/api"
+
+LOGIN_URL = f"{FLASK_BASE}/login"
+RESTAURANTS_URL = f"{FLASK_BASE}/restaurants"
+MENU_URL = lambda rid: f"{FLASK_BASE}/menu-items/restaurant/{rid}"
+
+
+def fetch_token(email, password):
+    response = requests.post(LOGIN_URL, json={"email": email, "password": password})
+    if response.status_code == 200:
+        return response.json().get("access_token")
+    return None
+
+@login_required
+@user_required
+def api_restaurant_view(request):
+
+    #currently hard code but i will change this later
+    token = fetch_token("john@example.com", "securepassword123")  
+    if not token:
+        return render(request, "error.html", {"message": "Authentication failed"})
+
+    headers = {"Authorization": f"Bearer {token}"}
+    restaurants_response = requests.get(RESTAURANTS_URL, headers=headers)
+
+    print("Restaurants Response:", restaurants_response.json())
+    if restaurants_response.status_code != 200:
+        return render(request, "error.html", {"message": "Failed to fetch restaurants"})
+
+
+    restaurants_data = restaurants_response.json()
+    
+    print("Fetched Restaurants Data:", restaurants_data)  
+
+    for restaurant in restaurants_data:
+        rid = restaurant["id"]
+        menu_response = requests.get(MENU_URL(rid), headers=headers)
+
+
+        print(f"Menu Response for restaurant {restaurant['name']} (ID: {rid}):", menu_response.json())  
+
+        if menu_response.status_code == 200:
+            menu_data = menu_response.json()
+            restaurant["menu_items"] = menu_data  
+        else:
+            print(f"Failed to fetch menu for restaurant {restaurant['name']}")
+            restaurant["menu_items"] = []
+
+    return render(request, "other_restaurants.html", {
+        "restaurants": restaurants_data
+    })
+
+
+
+def error_view(request):
+    error_message = "An error occurred, please try again later."
+    return render(request, 'error.html', {'error_message': error_message})
+
+ORDER_URL = f"{FLASK_BASE}/order"
+
+
+
+@csrf_exempt
+def place_order_api(request):
+    if request.method == 'POST':
+        try:
+            user = request.user
+            user_id = user.id
+            print(f"Logged-in user ID: {user_id}")
+
+            try:
+                data = json.loads(request.body)
+                print(f"Data received in request: {data}")
+            except json.JSONDecodeError as e:
+                return JsonResponse({'message': 'Invalid JSON'}, status=400)
+
+            try:
+                user_profile = Profile.objects.get(user_id=user_id)
+            except Profile.DoesNotExist:
+                return JsonResponse({'message': 'Profile not found for user'}, status=400)
+
+            # Prepare the payload for Flask
+            payload = {
+                "user_id": user_id,
+                "restaurant_id": data.get("restaurant_id"),
+                "items": data.get("items", []),
+                "total_price": data.get("total_price"),
+                "city": user_profile.city,
+                "address": user_profile.address,
+            }
+
+            if not payload["restaurant_id"] or not payload["items"] or not payload["total_price"]:
+                return JsonResponse({'message': 'Missing required fields'}, status=400)
+            
+            flask_api_url = f"{FLASK_BASE}/order"
+            response = requests.post(flask_api_url, json=payload, headers={"Content-Type": "application/json"})
+
+            print(f"Flask response: {response.status_code} - {response.text}")
+
+            if response.status_code == 201:
+                return JsonResponse({'message': 'Order placed successfully!'}, status=201)
+            else:
+                return JsonResponse({'message': 'Flask error', 'details': response.text}, status=400)
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return JsonResponse({'message': f'Internal server error: {str(e)}'}, status=500)
+
+    return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+@admin_required
+@login_required
+def contact_messages(request):
+    try:
+        response = requests.get(f"{FLASK_BASE}/contact")  
+        response.raise_for_status()
+    
+        contacts = response.json()
+        
+        if not isinstance(contacts, list):
+            raise ValueError("Expected a list of contacts from the API.")
+        
+        for contact in contacts:
+            if not all(key in contact for key in ['id', 'name', 'email', 'subject', 'message', 'created_at']):
+                raise ValueError("Missing expected fields in the contact data.")
+        
+        print(contacts)
+
+    except requests.RequestException as e:
+        contacts = []  
+        print("Error fetching data from Flask API:", e)
+    except ValueError as ve:
+        contacts = []
+        print("Data validation error:", ve)
+
+    return render(request, "contact_messages.html", context={"contacts": contacts})
 
 
 

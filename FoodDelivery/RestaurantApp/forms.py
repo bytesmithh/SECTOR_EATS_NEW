@@ -32,3 +32,4 @@ class MenuItemForm(forms.ModelForm):
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
+

@@ -5,12 +5,19 @@ import random
 from django.utils import timezone
 
 class Profile(models.Model):
+    ROLE_CHOICES = [
+        ('customer', 'Customer'),
+        ('restaurant_admin', 'Restaurant Admin'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=15,unique=True)
+    phone = models.CharField(max_length=15, unique=True)
     address = models.TextField()
     city = models.CharField(max_length=100)
-    role = models.CharField(max_length=100,default="customer")
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
 
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
     
 
 
