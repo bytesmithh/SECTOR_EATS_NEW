@@ -19,7 +19,7 @@ from .forms import MenuItemForm
 from .models import Profile,Restaurant,MenuItem,Cart, Order, OrderItem
 from .forms import RestaurantForm
 
-FLASK_BASE = "http://127.0.0.1:5000/api"
+FLASK_BASE = "https://amritpalsingh0945.pythonanywhere.com/api"
 
 # Create your views here.
 def home_view(request):
@@ -510,7 +510,6 @@ def phone_login_view(request):
 
 
 
-FLASK_BASE = "http://127.0.0.1:5000/api"
 
 LOGIN_URL = f"{FLASK_BASE}/login"
 RESTAURANTS_URL = f"{FLASK_BASE}/restaurants"
