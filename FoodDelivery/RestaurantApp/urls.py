@@ -36,9 +36,7 @@ urlpatterns=[
     path('error/', views.error_view, name='error'),
     path('place_order/', views.place_order_api, name='place_order'),
     path("admin/contact-messages/", views.contact_messages, name="contact_messages"),
-
     
-
 
 
 ]

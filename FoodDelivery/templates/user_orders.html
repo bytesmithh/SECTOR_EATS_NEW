@@ -111,9 +111,9 @@
                 </div>
             {% endif %}
 
-            <div class="order-header">Order #{{ order.id }} - {{ order.created_at|date:"M d, Y H:i" }}</div>
+            <div class="order-header">Order #{{ order.order_id }} - {{ order.timestamp|date:"M d, Y H:i" }}</div>
             
-            <div class="order-info">Total Amount: <strong>₹{{ order.total_amount }}</strong></div>
+            <div class="order-info">Total Amount: <strong>₹{{ order.total_price }}</strong></div>
             <div class="order-info">Status:
                 <span class="badge-status 
                     {% if order.status == 'Delivered' %}bg-success text-white
@@ -126,15 +126,15 @@
                     {{ order.status }}
                 </span>
             </div>
-            <div class="order-info">Delivery Address: {{ order.address }}, {{ order.city }}</div>
-            <div class="order-info">Phone: {{ order.phone }}</div>
+            <!-- <div class="order-info">Delivery Address: {{ order.address }}, {{ order.city }}</div>
+            <div class="order-info">Phone: {{ order.phone }}</div> -->
 
             <hr>
             <div class="order-info mb-2"><strong>Items:</strong></div>
-            {% for item in order.items.all %}
+            {% for item in order.order_items %}
                 <div class="item-box d-flex justify-content-between">
                     <div>
-                        <div class="item-name">{{ item.item.name }}</div>
+                        <div class="item-name">{{ item.name }}</div>
                         <div class="item-details">Qty: {{ item.quantity }}</div>
                     </div>
                     <div class="fw-semibold text-success">₹{{ item.price|floatformat:2 }}</div>

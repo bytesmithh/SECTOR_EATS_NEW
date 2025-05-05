@@ -76,15 +76,6 @@ def signup_view(request):
     return render(request, "signup.html")
 
 
-
-
-
-import requests
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from .models import Profile, User
-
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -102,7 +93,6 @@ def login_view(request):
             login(request, user)
             profile = Profile.objects.get(user=user)
 
-            # Sync user to Flask
             user_payload = {
                 "id": user.id,
                 "name": user.first_name or f"User {user.id}",
@@ -133,8 +123,6 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-
-
 def about_us_view(request):
     return render(request,"about_us.html")
 
@@ -142,13 +130,7 @@ def logout_view(request):
     logout(request)
     return redirect('login_view')  
 
-
-
-
 HUGGINGFACE_API_KEY = "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"  
-
-
-
 
 @csrf_exempt
 def ai_chat(request):
@@ -470,10 +452,21 @@ def admin_recent_orders(request):
 
 
 @login_required
-@user_required
 def user_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related('items__item').order_by('-created_at')
-    return render(request, 'user_orders.html', {'orders': orders})
+    try:
+        # Replace with your actual Flask API URL
+        response = requests.get(f'{FLASK_BASE}/orders')
+        response.raise_for_status()
+        orders = response.json()
+
+        # Optional: Filter orders belonging to the current user
+        user_orders = [order for order in orders if order['user_id'] == request.user.id]
+
+        return render(request, 'user_orders.html', {'orders': user_orders})
+
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Failed to fetch orders: {e}")
+        return render(request, 'user_orders.html', {'orders': []})
 
 
 
@@ -535,7 +528,9 @@ def fetch_token(email, password):
 def api_restaurant_view(request):
 
     #currently hard code but i will change this later
+
     token = fetch_token("john@example.com", "securepassword123")  
+
     if not token:
         return render(request, "error.html", {"message": "Authentication failed"})
 
@@ -653,7 +648,6 @@ def contact_messages(request):
         print("Data validation error:", ve)
 
     return render(request, "contact_messages.html", context={"contacts": contacts})
-
 
 
 
